@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     const { category, gender, collectionType, search, isNewArrival, isTrending, sort } = req.query;
     
     let query = {};
-    if (category && category !== 'All') query.category = category;
+    if (category && category !== 'All') query.category = new RegExp(`^${category}$`, 'i');
     if (gender && gender !== 'All') query.gender = gender;
     if (collectionType && collectionType !== 'All') query.collectionType = collectionType;
     if (isNewArrival === 'true') query.isNewArrival = true;
@@ -32,9 +32,12 @@ router.get('/', async (req, res) => {
       else if (sort === 'rating') reqSort.rating = -1;
       else reqSort.createdAt = -1;
 
-      products = await Product.find(query).sort(reqSort);
-      if (!products || products.length === 0) {
+      // Sync MongoDB or fallback to updated sampleProducts
+      const dbProducts = await Product.find(query).sort(reqSort);
+      if (!dbProducts || dbProducts.length === 0 || dbProducts.length < sampleProducts.length) {
         products = filterSampleProducts(req.query);
+      } else {
+        products = dbProducts;
       }
     } catch (dbErr) {
       products = filterSampleProducts(req.query);
@@ -107,11 +110,11 @@ router.post('/', async (req, res) => {
       originalPrice: Number(originalPrice || price),
       discount: Number(discount || 0),
       category,
-      gender: gender || 'Unisex',
+      gender: gender || 'Men',
       sizes: sizes && sizes.length > 0 ? sizes : ['S', 'M', 'L', 'XL'],
       colors: colors && colors.length > 0 ? colors : [{ name: 'Black', hex: '#000000' }],
-      images: images && images.length > 0 ? images : ['https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80'],
-      collectionType: collectionType || 'Casual Wear',
+      images: images && images.length > 0 ? images : ['/tshirt-1.png'],
+      collectionType: collectionType || 'T-Shirts',
       fabric: fabric || '100% Organic Supima Cotton',
       careInstructions: careInstructions || 'Machine wash cool, lay flat to dry.',
       stockCount: Number(stockCount || 50),
@@ -127,13 +130,12 @@ router.post('/', async (req, res) => {
       const product = new Product(newProductData);
       createdProduct = await product.save();
     } catch (dbErr) {
-      // In-memory fallback
       createdProduct = {
         _id: 'prod-custom-' + Date.now(),
         ...newProductData
       };
-      sampleProducts.unshift(createdProduct);
     }
+    sampleProducts.unshift(createdProduct);
 
     return res.status(201).json({
       success: true,

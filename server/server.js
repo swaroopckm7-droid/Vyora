@@ -28,8 +28,8 @@ app.use('/api/newsletter', newsletterRoutes);
 // Men's Exclusive Categories route
 app.get('/api/categories', (req, res) => {
   const categories = [
+    { id: 'tshirts', name: 'T-Shirts', count: 15, image: '/tshirt-1.png' },
     { id: 'shirts', name: 'Shirts', count: 12, image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80' },
-    { id: 'tshirts', name: 'T-Shirts', count: 15, image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },
     { id: 'hoodies', name: 'Hoodies', count: 10, image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80' },
     { id: 'trackpants', name: 'Track Pants', count: 14, image: 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=600&q=80' }
   ];
@@ -55,12 +55,10 @@ app.get('/', (req, res) => {
 // Start Server & Connect MongoDB
 connectDB().then((isMongoConnected) => {
   if (isMongoConnected) {
-    Product.countDocuments().then(count => {
-      if (count === 0) {
-        Product.insertMany(sampleProducts.map(({ _id, ...rest }) => rest))
-          .then(() => console.log('Automatically seeded initial products to MongoDB'))
-          .catch(e => console.error('Auto-seed error:', e));
-      }
+    Product.deleteMany({}).then(() => {
+      Product.insertMany(sampleProducts.map(({ _id, ...rest }) => rest))
+        .then(() => console.log('Re-seeded fresh Men T-shirts products to MongoDB'))
+        .catch(e => console.error('Auto-seed error:', e));
     });
   }
 });
