@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
-import { X, User, ShieldCheck, LogOut, Crown, Key } from 'lucide-react';
-import { SignIn, SignUp, useUser, useClerk } from '@clerk/clerk-react';
+import { X, User, ShieldCheck, LogOut, Crown, Key, Mail, Lock } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 
 export const UserAccountModal = ({ isOpen, onClose, onOpenOwnerPortal }) => {
   if (!isOpen) return null;
 
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
   const { showToast } = useToast();
   
   const [role, setRole] = useState('customer'); // 'customer' | 'owner'
@@ -19,7 +16,7 @@ export const UserAccountModal = ({ isOpen, onClose, onOpenOwnerPortal }) => {
 
   const handleOwnerAccess = (e) => {
     e.preventDefault();
-    if (ownerPasscode === 'vyorathreads2026' || ownerPasscode.toLowerCase() === 'vyorathreads2026' || ownerPasscode.length > 0) {
+    if (ownerPasscode.toLowerCase() === 'vyorathreads2026' || ownerPasscode.length > 0) {
       showToast('Welcome Store Owner! Accessing Inventory Manager...', 'success');
       onClose();
       onOpenOwnerPortal();
@@ -28,37 +25,47 @@ export const UserAccountModal = ({ isOpen, onClose, onOpenOwnerPortal }) => {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      if (signOut) await signOut();
-    } catch (err) {}
+  const handleCustomerAuth = (e) => {
+    e.preventDefault();
+    if (!formData.email || !formData.password) {
+      showToast('Please enter your email and password', 'error');
+      return;
+    }
+    const user = {
+      fullName: formData.name || formData.email.split('@')[0],
+      email: formData.email
+    };
+    setLocalUser(user);
+    showToast(`Welcome back, ${user.fullName}!`, 'success');
+    onClose();
+  };
+
+  const handleSignOut = () => {
     setLocalUser(null);
     showToast('Signed out successfully', 'info');
     onClose();
   };
 
-  const activeUser = (isSignedIn && user) ? user : localUser;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="fixed inset-0 bg-black/85 backdrop-blur-md" onClick={onClose} />
 
-      <div className="relative w-full max-w-md bg-vyora-card border border-gold/40 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-left">
+      <div className="relative w-full max-w-md bg-[#141414] border border-[#D4AF37]/40 rounded-3xl p-6 sm:p-8 shadow-2xl z-10 text-left">
         
         <button 
           onClick={onClose} 
-          className="absolute top-4 right-4 z-20 text-gray-400 hover:text-white p-2 rounded-full bg-black/50 hover:bg-gold hover:text-black transition-colors"
+          className="absolute top-4 right-4 z-20 text-gray-400 hover:text-white p-2 rounded-full bg-black/50 hover:bg-[#D4AF37] hover:text-black transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Dual Role Selector Tabs: Customer vs Owner */}
-        <div className="flex items-center gap-2 p-1 bg-charcoal rounded-xl border border-white/10 mb-6">
+        <div className="flex items-center gap-2 p-1 bg-black/60 rounded-xl border border-white/10 mb-6">
           <button
             onClick={() => setRole('customer')}
-            className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+            className={`flex-1 py-2.5 text-xs font-bold uppercase rounded-lg flex items-center justify-center gap-1.5 transition-all ${
               role === 'customer'
-                ? 'bg-gold text-black shadow-gold-glow'
+                ? 'bg-[#D4AF37] text-black shadow-gold-glow font-extrabold'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -68,9 +75,9 @@ export const UserAccountModal = ({ isOpen, onClose, onOpenOwnerPortal }) => {
 
           <button
             onClick={() => setRole('owner')}
-            className={`flex-1 py-2 text-xs font-bold uppercase rounded-lg flex items-center justify-center gap-1.5 transition-all ${
+            className={`flex-1 py-2.5 text-xs font-bold uppercase rounded-lg flex items-center justify-center gap-1.5 transition-all ${
               role === 'owner'
-                ? 'bg-gold text-black shadow-gold-glow'
+                ? 'bg-[#D4AF37] text-black shadow-gold-glow font-extrabold'
                 : 'text-gray-400 hover:text-white'
             }`}
           >
@@ -83,12 +90,12 @@ export const UserAccountModal = ({ isOpen, onClose, onOpenOwnerPortal }) => {
           /* Store Owner Access Interface */
           <div className="space-y-5">
             <div className="text-center">
-              <div className="w-14 h-14 rounded-full bg-gold/10 border border-gold/40 text-gold flex items-center justify-center mx-auto mb-3 shadow-gold-glow">
+              <div className="w-14 h-14 rounded-full bg-[#D4AF37]/10 border border-[#D4AF37]/40 text-[#D4AF37] flex items-center justify-center mx-auto mb-3 shadow-gold-glow">
                 <Crown className="w-7 h-7" />
               </div>
-              <h3 className="font-poppins font-black text-2xl text-white">Store Owner Access</h3>
+              <h3 className="font-playfair font-normal text-2xl text-white">Store Owner Access</h3>
               <p className="text-gray-400 text-xs mt-1">
-                Access product catalog manager, add new clothing items to MongoDB, and inspect orders.
+                Access product catalog manager, publish clothing items to MongoDB, and inspect orders.
               </p>
             </div>
 
@@ -104,51 +111,45 @@ export const UserAccountModal = ({ isOpen, onClose, onOpenOwnerPortal }) => {
                     placeholder="Enter owner passcode (e.g. vyorathreads2026)"
                     value={ownerPasscode}
                     onChange={(e) => setOwnerPasscode(e.target.value)}
-                    className="w-full bg-charcoal border border-white/10 rounded-xl pl-9 pr-3 py-3 text-xs text-white focus:border-gold outline-none"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-9 pr-3 py-3 text-xs text-white focus:border-[#D4AF37] outline-none"
                   />
                 </div>
-                <span className="text-[10px] text-gold/80 mt-1 block">Owner Passcode: <strong className="font-mono">vyorathreads2026</strong></span>
+                <span className="text-[10px] text-[#D4AF37]/80 mt-1 block">Owner Passcode: <strong className="font-mono">vyorathreads2026</strong></span>
               </div>
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-gold via-amber-400 to-gold-dark text-black font-extrabold text-xs py-3.5 rounded-full shadow-gold-glow uppercase tracking-wider hover:scale-[1.02] transition-transform"
+                className="w-full bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#D4AF37] text-black font-extrabold text-xs py-3.5 rounded-full shadow-gold-glow uppercase tracking-wider hover:scale-[1.02] transition-transform"
               >
                 Launch Owner Management Dashboard
               </button>
             </form>
           </div>
-        ) : activeUser ? (
+        ) : localUser ? (
           /* Customer Profile View */
           <div className="text-center space-y-6 py-4">
-            <div className="relative w-24 h-24 rounded-full border-2 border-gold mx-auto overflow-hidden shadow-gold-glow">
-              {activeUser.imageUrl ? (
-                <img src={activeUser.imageUrl} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gold/10 text-gold flex items-center justify-center">
-                  <User className="w-12 h-12" />
-                </div>
-              )}
+            <div className="relative w-20 h-20 rounded-full border-2 border-[#D4AF37] mx-auto overflow-hidden shadow-gold-glow bg-[#D4AF37]/10 text-[#D4AF37] flex items-center justify-center">
+              <User className="w-10 h-10" />
             </div>
 
             <div>
-              <h3 className="font-poppins font-black text-2xl text-white">
-                {activeUser.fullName || 'Vyora Member'}
+              <h3 className="font-playfair text-2xl text-white">
+                {localUser.fullName}
               </h3>
               <p className="text-gray-400 text-xs mt-1">
-                {activeUser.primaryEmailAddress?.emailAddress}
+                {localUser.email}
               </p>
               
-              <div className="inline-flex items-center gap-1.5 mt-3 bg-gold/15 text-gold text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border border-gold/40 shadow-gold-glow">
+              <div className="inline-flex items-center gap-1.5 mt-3 bg-[#D4AF37]/15 text-[#D4AF37] text-[10px] font-extrabold uppercase px-3 py-1 rounded-full border border-[#D4AF37]/40 shadow-gold-glow">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Clerk Customer Account</span>
+                <span>Vyora VIP Member</span>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-white/10 space-y-3">
+            <div className="pt-4 border-t border-white/10">
               <button
                 onClick={handleSignOut}
-                className="w-full flex items-center justify-center gap-2 bg-charcoal hover:bg-rose-950 hover:text-rose-200 text-gray-300 font-bold text-xs py-3.5 rounded-full border border-white/10 uppercase transition-colors"
+                className="w-full flex items-center justify-center gap-2 bg-black/60 hover:bg-rose-950 hover:text-rose-200 text-gray-300 font-bold text-xs py-3.5 rounded-full border border-white/10 uppercase transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Sign Out</span>
@@ -156,60 +157,80 @@ export const UserAccountModal = ({ isOpen, onClose, onOpenOwnerPortal }) => {
             </div>
           </div>
         ) : (
-          /* Clerk Customer Authentication */
+          /* Customer Authentication */
           <div>
             <div className="text-center mb-6">
-              <span className="text-gold text-[10px] font-extrabold uppercase tracking-widest block mb-1">
-                Clerk Secure Customer Auth
+              <span className="text-[#D4AF37] text-[10px] font-extrabold uppercase tracking-widest block mb-1">
+                Vyora VIP Club
               </span>
-              <h3 className="font-poppins font-black text-2xl text-white">
+              <h3 className="font-playfair text-2xl text-white">
                 {authMode === 'login' ? 'Welcome Back to Vyora' : 'Join Vyora VIP Club'}
               </h3>
             </div>
 
-            <div className="clerk-auth-container my-4 flex justify-center">
-              {authMode === 'login' ? (
-                <SignIn 
-                  appearance={{
-                    elements: {
-                      card: 'bg-transparent shadow-none border-none p-0',
-                      headerTitle: 'hidden',
-                      headerSubtitle: 'hidden',
-                      socialButtonsBlockButton: 'bg-charcoal border-white/10 text-white hover:border-gold',
-                      formButtonPrimary: 'bg-gradient-to-r from-gold via-amber-400 to-gold-dark text-black font-extrabold shadow-gold-glow',
-                      footerActionLink: 'text-gold font-bold'
-                    }
-                  }}
-                />
-              ) : (
-                <SignUp
-                  appearance={{
-                    elements: {
-                      card: 'bg-transparent shadow-none border-none p-0',
-                      headerTitle: 'hidden',
-                      headerSubtitle: 'hidden',
-                      socialButtonsBlockButton: 'bg-charcoal border-white/10 text-white hover:border-gold',
-                      formButtonPrimary: 'bg-gradient-to-r from-gold via-amber-400 to-gold-dark text-black font-extrabold shadow-gold-glow',
-                      footerActionLink: 'text-gold font-bold'
-                    }
-                  }}
-                />
+            <form onSubmit={handleCustomerAuth} className="space-y-4">
+              {authMode === 'signup' && (
+                <div>
+                  <label className="block text-xs font-bold uppercase text-gray-300 mb-1">Full Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-xs text-white focus:border-[#D4AF37] outline-none"
+                  />
+                </div>
               )}
-            </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-300 mb-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-gray-500 absolute left-3 top-3.5" />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-9 pr-3 py-3 text-xs text-white focus:border-[#D4AF37] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-300 mb-1">Password</label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-gray-500 absolute left-3 top-3.5" />
+                  <input
+                    type="password"
+                    placeholder="Enter password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full bg-black/50 border border-white/10 rounded-xl pl-9 pr-3 py-3 text-xs text-white focus:border-[#D4AF37] outline-none"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#D4AF37] text-black font-extrabold text-xs py-3.5 rounded-full shadow-gold-glow uppercase tracking-wider hover:scale-[1.02] transition-transform"
+              >
+                {authMode === 'login' ? 'Sign In to Vyora' : 'Create Account'}
+              </button>
+            </form>
 
             <div className="mt-4 pt-4 border-t border-white/10 text-center text-xs text-gray-400">
               {authMode === 'login' ? (
                 <p>
                   Don't have an account?{' '}
-                  <button onClick={() => setAuthMode('signup')} className="text-gold font-bold underline">
-                    Register with Clerk
+                  <button onClick={() => setAuthMode('signup')} className="text-[#D4AF37] font-bold underline">
+                    Register Now
                   </button>
                 </p>
               ) : (
                 <p>
                   Already have an account?{' '}
-                  <button onClick={() => setAuthMode('login')} className="text-gold font-bold underline">
-                    Sign In with Clerk
+                  <button onClick={() => setAuthMode('login')} className="text-[#D4AF37] font-bold underline">
+                    Sign In
                   </button>
                 </p>
               )}

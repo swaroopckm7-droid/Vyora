@@ -3,7 +3,6 @@ import { Search, Heart, ShoppingBag, User, Crown, Menu as MenuIcon, X } from 'lu
 import { VyoraLogo } from './VyoraLogo';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 
 export const Navbar = ({
   activeTab,
@@ -119,27 +118,15 @@ export const Navbar = ({
               )}
             </button>
 
-            {/* Clerk Profile User Button / Login Trigger */}
+            {/* User Account Modal Launcher */}
             <div className="flex items-center pl-2 border-l border-white/10">
-              <SignedIn>
-                <UserButton
-                  appearance={{
-                    elements: {
-                      userButtonAvatarBox: 'w-8 h-8 ring-2 ring-[#D4AF37]'
-                    }
-                  }}
-                />
-              </SignedIn>
-
-              <SignedOut>
-                <button
-                  onClick={onOpenAccount}
-                  className="flex items-center gap-1.5 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#D4AF37]/40 transition-all shadow-gold-glow uppercase tracking-wider"
-                >
-                  <User className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Sign In</span>
-                </button>
-              </SignedOut>
+              <button
+                onClick={onOpenAccount}
+                className="flex items-center gap-1.5 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#D4AF37]/40 transition-all shadow-gold-glow uppercase tracking-wider"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Account</span>
+              </button>
             </div>
 
             {/* Owner Portal Quick Link */}
