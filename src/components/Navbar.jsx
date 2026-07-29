@@ -1,245 +1,191 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Heart, ShoppingBag, User, Sun, Moon, Menu, X, ChevronRight, Crown } from 'lucide-react';
+import { Search, Heart, ShoppingBag, User, Crown, Menu as MenuIcon, X } from 'lucide-react';
+import { VyoraLogo } from './VyoraLogo';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
-import { useTheme } from '../context/ThemeContext';
-import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
-import { VyoraLogo } from './VyoraLogo';
+import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 
-export const Navbar = ({ 
-  activeTab, 
-  setActiveTab, 
-  onOpenSearch, 
-  onOpenAccount, 
-  onCategorySelect, 
-  onGenderSelect 
+export const Navbar = ({
+  activeTab,
+  setActiveTab,
+  onOpenSearch,
+  onOpenAccount,
+  onCategorySelect,
+  onGenderSelect
 }) => {
+  const { totalItems, setIsCartOpen } = useCart();
+  const { wishlist, setIsWishlistOpen } = useWishlist();
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { totalItems, setIsCartOpen, subtotal } = useCart();
-  const { totalWishlistItems, setIsWishlistOpen } = useWishlist();
-  const { isDark, toggleTheme } = useTheme();
-  const { user, isSignedIn } = useUser();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      setIsScrolled(window.scrollY > 30);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
-    { name: 'Home', id: 'home' },
-    { name: 'Shop', id: 'shop' },
-    { name: 'New Arrivals', id: 'new-arrivals' },
-    { name: 'Men', id: 'men' },
-    { name: 'Women', id: 'women' },
-    { name: 'Collections', id: 'collections' },
-    { name: 'Owner Portal', id: 'owner-dashboard' },
-    { name: 'About', id: 'about' },
-    { name: 'Contact', id: 'contact' }
+    { label: 'Home', tab: 'home' },
+    { label: 'Men', tab: 'shop', gender: 'Men' },
+    { label: 'Women', tab: 'shop', gender: 'Women' },
+    { label: 'New Arrivals', tab: 'shop', category: 'Oversized Wear' },
+    { label: 'Collections', tab: 'collections' },
+    { label: 'Lookbook', tab: 'collections' },
+    { label: 'About', tab: 'about' },
+    { label: 'Contact', tab: 'contact' }
   ];
 
-  const handleNavClick = (linkId) => {
-    setActiveTab(linkId);
-    setMobileMenuOpen(false);
-    if (linkId === 'men') {
-      onGenderSelect('Men');
-      setActiveTab('shop');
-    } else if (linkId === 'women') {
-      onGenderSelect('Women');
-      setActiveTab('shop');
-    } else if (linkId === 'new-arrivals') {
-      setActiveTab('shop');
-    }
-  };
-
   return (
-    <>
-      {/* Top Banner Notice */}
-      <div className="bg-gradient-to-r from-charcoal-dark via-gold/90 to-charcoal-dark text-black text-xs font-semibold py-2 px-4 text-center tracking-wider uppercase shadow-sm">
-        <span>✨ Free Worldwide Express Shipping on Orders Over $150 | Use Code: <span className="font-extrabold underline">VYORA15</span> for 15% OFF ✨</span>
-      </div>
-
-      {/* Main Navigation Bar */}
-      <header 
-        className={`sticky top-0 z-40 transition-all duration-300 ${
-          isScrolled 
-            ? 'bg-vyora-black/90 dark:bg-vyora-black/90 border-b border-gold/20 backdrop-blur-md shadow-2xl py-3' 
-            : 'bg-vyora-black/80 dark:bg-vyora-black/80 border-b border-white/10 backdrop-blur-sm py-4'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+    <header className={`sticky top-0 z-40 transition-all duration-500 ${isScrolled ? 'glass-nav py-3' : 'bg-[#0D0D0D]/90 backdrop-blur-md py-4 border-b border-white/10'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
           
-          {/* Mobile Menu Button */}
-          <button 
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 text-gray-300 hover:text-gold transition-colors focus:outline-none"
-            aria-label="Toggle Navigation Menu"
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          {/* Left: Mobile Menu Toggle & Brand Logo */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="lg:hidden text-gray-300 hover:text-gold p-1"
+              aria-label="Toggle Menu"
+            >
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+            </button>
 
-          {/* Exact Vyora Logo Emblem */}
-          <button 
-            onClick={() => setActiveTab('home')}
-            className="group focus:outline-none"
-          >
-            <VyoraLogo />
-          </button>
+            <button onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-left focus:outline-none">
+              <VyoraLogo className="h-10 sm:h-12" />
+            </button>
+          </div>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6">
-            {navLinks.map((link) => (
+          {/* Center Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-8">
+            {navLinks.map((link, idx) => (
               <button
-                key={link.id}
-                onClick={() => handleNavClick(link.id)}
-                className={`text-xs font-semibold tracking-wider uppercase transition-all duration-200 relative py-1 flex items-center gap-1 ${
-                  activeTab === link.id
-                    ? 'text-gold font-extrabold'
-                    : link.id === 'owner-dashboard'
-                    ? 'text-amber-400 hover:text-gold'
-                    : 'text-gray-300 hover:text-gold'
+                key={idx}
+                onClick={() => {
+                  setActiveTab(link.tab);
+                  if (link.gender && onGenderSelect) onGenderSelect(link.gender);
+                  if (link.category && onCategorySelect) onCategorySelect(link.category);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`text-xs font-bold uppercase tracking-[0.2em] transition-all relative py-1 ${
+                  activeTab === link.tab
+                    ? 'text-[#D4AF37] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#D4AF37]'
+                    : 'text-gray-300 hover:text-white'
                 }`}
               >
-                {link.id === 'owner-dashboard' && <Crown className="w-3.5 h-3.5 text-gold" />}
-                <span>{link.name}</span>
-                {activeTab === link.id && (
-                  <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-gold to-gold-hover shadow-gold-glow rounded-full" />
-                )}
+                {link.label}
               </button>
             ))}
           </nav>
 
-          {/* Action Icons & Controls */}
-          <div className="flex items-center gap-3 sm:gap-4">
+          {/* Right Action Icons: Search, Wishlist, Cart, Profile */}
+          <div className="flex items-center gap-4 sm:gap-6">
             
-            {/* Live Search Icon */}
+            {/* Search Icon */}
             <button
               onClick={onOpenSearch}
-              className="p-2 text-gray-300 hover:text-gold transition-colors rounded-full hover:bg-white/5"
-              title="Search products"
+              className="p-2 text-gray-300 hover:text-[#D4AF37] transition-colors rounded-full hover:bg-white/5"
+              title="Search GARMENTS"
             >
               <Search className="w-5 h-5" />
             </button>
 
-            {/* Dark / Light Mode Toggle */}
+            {/* Wishlist Icon */}
             <button
-              onClick={toggleTheme}
-              className="p-2 text-gray-300 hover:text-gold transition-colors rounded-full hover:bg-white/5"
-              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+              onClick={() => setIsWishlistOpen(true)}
+              className="p-2 text-gray-300 hover:text-[#D4AF37] transition-colors relative rounded-full hover:bg-white/5"
+              title="Wishlist"
             >
-              {isDark ? <Sun className="w-5 h-5 text-amber-400" /> : <Moon className="w-5 h-5 text-slate-700" />}
+              <Heart className="w-5 h-5" />
+              {wishlist.length > 0 && (
+                <span className="absolute top-1 right-1 bg-[#D4AF37] text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-gold-glow">
+                  {wishlist.length}
+                </span>
+              )}
             </button>
 
-            {/* User Account / Clerk User Button */}
-            <div className="hidden sm:flex items-center">
+            {/* Cart Icon */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="p-2 text-gray-300 hover:text-[#D4AF37] transition-colors relative rounded-full hover:bg-white/5"
+              title="Shopping Cart"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              {totalItems > 0 && (
+                <span className="absolute top-1 right-1 bg-[#D4AF37] text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-gold-glow">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
+            {/* Clerk Profile User Button / Login Trigger */}
+            <div className="flex items-center pl-2 border-l border-white/10">
               <SignedIn>
-                <div className="p-1 rounded-full border border-gold/40 shadow-gold-glow">
-                  <UserButton 
-                    afterSignOutUrl="/"
-                    appearance={{
-                      elements: {
-                        avatarBox: "w-8 h-8 rounded-full border border-gold"
-                      }
-                    }}
-                  />
-                </div>
+                <UserButton
+                  appearance={{
+                    elements: {
+                      userButtonAvatarBox: 'w-8 h-8 ring-2 ring-[#D4AF37]'
+                    }
+                  }}
+                />
               </SignedIn>
 
               <SignedOut>
                 <button
                   onClick={onOpenAccount}
-                  className="p-2 text-gray-300 hover:text-gold transition-colors rounded-full hover:bg-white/5"
-                  title="Account & Owner Login"
+                  className="flex items-center gap-1.5 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black font-bold text-xs px-3.5 py-1.5 rounded-full border border-[#D4AF37]/40 transition-all shadow-gold-glow uppercase tracking-wider"
                 >
-                  <User className="w-5 h-5" />
+                  <User className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Sign In</span>
                 </button>
               </SignedOut>
             </div>
 
-            {/* Wishlist Button with Badge */}
+            {/* Owner Portal Quick Link */}
             <button
-              onClick={() => setIsWishlistOpen(true)}
-              className="p-2 text-gray-300 hover:text-gold transition-colors rounded-full hover:bg-white/5 relative"
-              title="Wishlist"
+              onClick={() => setActiveTab('owner-dashboard')}
+              className="hidden xl:flex items-center gap-1.5 bg-white/5 hover:bg-[#D4AF37] hover:text-black text-gray-300 text-[10px] font-extrabold uppercase px-3 py-1.5 rounded-full border border-white/10 transition-colors"
+              title="Store Owner Management Dashboard"
             >
-              <Heart className="w-5 h-5" />
-              {totalWishlistItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-gold text-black font-extrabold text-[10px] w-4 h-4 rounded-full flex items-center justify-center shadow-gold-glow">
-                  {totalWishlistItems}
-                </span>
-              )}
-            </button>
-
-            {/* Shopping Cart Drawer Trigger Button */}
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 bg-gradient-to-r from-gold via-amber-400 to-gold-dark hover:from-amber-400 hover:to-gold text-black font-bold px-3 sm:px-4 py-2 rounded-full transition-all duration-300 shadow-gold-glow hover:scale-105"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span className="text-xs sm:text-sm">{totalItems}</span>
-              {subtotal > 0 && (
-                <span className="hidden md:inline text-xs font-extrabold border-l border-black/30 pl-2">
-                  ${subtotal.toFixed(2)}
-                </span>
-              )}
+              <Crown className="w-3 h-3 text-[#D4AF37]" />
+              <span>Owner</span>
             </button>
 
           </div>
+
         </div>
-      </header>
+      </div>
 
       {/* Mobile Drawer Menu */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden flex">
-          <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <div className="relative w-4/5 max-w-xs bg-vyora-black border-r border-gold/20 h-full p-6 flex flex-col justify-between shadow-2xl z-10">
-            <div>
-              <div className="flex items-center justify-between pb-6 border-b border-gray-800">
-                <VyoraLogo showTagline={false} />
-                <button onClick={() => setMobileMenuOpen(false)} className="text-gray-400 hover:text-white">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="mt-6 flex flex-col gap-3">
-                {navLinks.map((link) => (
-                  <button
-                    key={link.id}
-                    onClick={() => handleNavClick(link.id)}
-                    className={`flex items-center justify-between text-left py-2 px-3 rounded-lg text-sm font-semibold tracking-wider uppercase transition-colors ${
-                      activeTab === link.id
-                        ? 'bg-gold/10 text-gold border-l-4 border-gold'
-                        : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="flex items-center gap-2">
-                      {link.id === 'owner-dashboard' && <Crown className="w-4 h-4 text-gold" />}
-                      {link.name}
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-gray-500" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="border-t border-gray-800 pt-6">
-              <button 
-                onClick={() => { onOpenAccount(); setMobileMenuOpen(false); }}
-                className="w-full flex items-center justify-center gap-2 bg-charcoal border border-gold/30 text-white font-medium py-2.5 rounded-lg text-sm"
-              >
-                <User className="w-4 h-4 text-gold" />
-                <span>Customer & Owner Login</span>
-              </button>
-            </div>
-          </div>
+      {isMobileMenuOpen && (
+        <div className="lg:hidden glass-panel border-t border-white/10 px-6 py-6 space-y-4 text-left animate-fadeIn">
+          {navLinks.map((link, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                setActiveTab(link.tab);
+                if (link.gender && onGenderSelect) onGenderSelect(link.gender);
+                if (link.category && onCategorySelect) onCategorySelect(link.category);
+                setIsMobileMenuOpen(false);
+              }}
+              className="block w-full text-left font-poppins font-bold text-sm text-gray-200 hover:text-[#D4AF37] uppercase tracking-widest py-2 border-b border-white/5"
+            >
+              {link.label}
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              setActiveTab('owner-dashboard');
+              setIsMobileMenuOpen(false);
+            }}
+            className="w-full flex items-center justify-center gap-2 bg-[#D4AF37] text-black font-extrabold text-xs py-3 rounded-xl uppercase tracking-wider mt-4"
+          >
+            <Crown className="w-4 h-4" />
+            <span>Store Owner Portal</span>
+          </button>
         </div>
       )}
-    </>
+    </header>
   );
 };

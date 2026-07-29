@@ -2,111 +2,100 @@ import React from 'react';
 import { ArrowUpRight } from 'lucide-react';
 
 export const FeaturedCategories = ({ onSelectCategory }) => {
-  const categories = [
+  const collections = [
     {
-      id: 'Hoodies',
-      name: 'Hoodies',
-      tagline: 'Heavyweight Luxury Comfort',
-      image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80',
-      span: 'col-span-1 md:col-span-2 lg:col-span-2'
+      id: 'streetwear',
+      title: 'Streetwear',
+      subtitle: 'Modern Architectural Cuts',
+      image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=800&q=80',
+      category: 'Oversized Wear'
     },
     {
-      id: 'Oversized Wear',
-      name: 'Oversized Wear',
-      tagline: 'Modern Boxy Silhouettes',
-      image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=800&q=80',
-      span: 'col-span-1 md:col-span-1 lg:col-span-1'
+      id: 'luxury-essentials',
+      title: 'Luxury Essentials',
+      subtitle: '480GSM Supima Cotton',
+      image: 'https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?auto=format&fit=crop&w=800&q=80',
+      category: 'T-Shirts'
     },
     {
-      id: 'T-Shirts',
-      name: 'T-Shirts',
-      tagline: 'Supima Organic Essentials',
-      image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80',
-      span: 'col-span-1 md:col-span-1 lg:col-span-1'
+      id: 'summer-collection',
+      title: 'Summer Collection',
+      subtitle: 'Bespoke Linen & Light Knits',
+      image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=800&q=80',
+      category: 'Shirts'
     },
     {
-      id: 'Jackets',
-      name: 'Jackets',
-      tagline: 'Structured Trench & Bombers',
+      id: 'winter-collection',
+      title: 'Winter Collection',
+      subtitle: 'Italian Outerwear & Trench',
       image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=800&q=80',
-      span: 'col-span-1 md:col-span-2 lg:col-span-2'
+      category: 'Jackets'
     },
     {
-      id: 'Shirts',
-      name: 'Shirts',
-      tagline: 'Silk-Touch Oxford & Linen',
-      image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80',
-      span: 'col-span-1'
+      id: 'oversized-collection',
+      title: 'Oversized Collection',
+      subtitle: 'Heavy Terry Hoodies & Sweats',
+      image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80',
+      category: 'Hoodies'
     },
     {
-      id: 'Jeans',
-      name: 'Jeans',
-      tagline: 'Japanese Selvage Denim',
-      image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80',
-      span: 'col-span-1'
-    },
-    {
-      id: 'Accessories',
-      name: 'Accessories',
-      tagline: 'Italian Leather & Hardware',
+      id: 'accessories',
+      title: 'Accessories',
+      subtitle: 'Eyewear & Italian Leather',
       image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=800&q=80',
-      span: 'col-span-1 md:col-span-1'
+      category: 'Accessories'
     }
   ];
 
   return (
-    <section className="py-20 bg-vyora-black">
+    <section className="py-24 bg-[#0D0D0D] border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 border-b border-gold/20 pb-6">
-          <div>
-            <span className="text-gold text-xs font-bold tracking-widest uppercase mb-2 block">
-              Curated Wardrobe
-            </span>
-            <h2 className="font-poppins font-black text-3xl sm:text-4xl text-white tracking-tight">
-              Featured Categories
-            </h2>
-          </div>
-          <p className="text-gray-400 text-sm max-w-md mt-2 md:mt-0">
-            Explore our signature garment cuts, crafted with sustainable organic fibers and tailored for everyday luxury.
-          </p>
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.3em] block mb-2">
+            Curated Atelier
+          </span>
+          <h2 className="font-playfair font-normal text-3xl sm:text-5xl text-white tracking-wide uppercase">
+            Featured Collections
+          </h2>
         </div>
 
-        {/* Category Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-6">
-          {categories.map((cat) => (
+        {/* 6 Editorial Grid Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {collections.map((col) => (
             <div
-              key={cat.id}
-              onClick={() => onSelectCategory(cat.id)}
-              className={`group relative h-80 rounded-2xl overflow-hidden cursor-pointer border border-white/10 hover:border-gold/60 transition-all duration-500 shadow-xl ${cat.span}`}
+              key={col.id}
+              onClick={() => onSelectCategory(col.category)}
+              className="group relative h-[450px] rounded-3xl overflow-hidden cursor-pointer border border-white/10 hover:border-[#D4AF37]/50 transition-all duration-500 shadow-2xl text-left"
             >
               {/* Background Image with Zoom Effect */}
               <img
-                src={cat.image}
-                alt={cat.name}
-                className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-700 ease-out"
+                src={col.image}
+                alt={col.title}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 filter brightness-90 group-hover:brightness-100"
                 loading="lazy"
               />
-              
-              {/* Dark Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent group-hover:via-black/60 transition-colors duration-300" />
 
-              {/* Category Info */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between">
+              {/* Gradient Dark Vignette Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent group-hover:via-black/20 transition-colors" />
+
+              {/* Card Footer Information */}
+              <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between z-10">
                 <div>
-                  <span className="text-gold text-xs font-semibold uppercase tracking-wider block mb-1">
-                    {cat.tagline}
+                  <span className="text-[#D4AF37] text-[10px] font-extrabold uppercase tracking-[0.25em] block mb-1">
+                    {col.subtitle}
                   </span>
-                  <h3 className="font-poppins font-bold text-2xl text-white group-hover:text-gold transition-colors">
-                    {cat.name}
+                  <h3 className="font-playfair font-normal text-2xl text-white group-hover:text-[#D4AF37] transition-colors">
+                    {col.title}
                   </h3>
                 </div>
 
-                <div className="w-10 h-10 rounded-full bg-vyora-black/80 border border-gold/40 flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-black transition-all duration-300 shadow-gold-glow">
-                  <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                <div className="w-12 h-12 rounded-full glass-panel text-white group-hover:bg-[#D4AF37] group-hover:text-black flex items-center justify-center transition-all shrink-0">
+                  <ArrowUpRight className="w-5 h-5 group-hover:rotate-45 transition-transform" />
                 </div>
               </div>
+
             </div>
           ))}
         </div>
