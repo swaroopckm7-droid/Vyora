@@ -5,7 +5,6 @@ import { Hero } from './components/Hero';
 import { FeaturedCategories } from './components/FeaturedCategories';
 import { ProductGrid } from './components/ProductGrid';
 import { QuickViewModal } from './components/QuickViewModal';
-import { TrendingCollections } from './components/TrendingCollections';
 import { WhyChooseUs } from './components/WhyChooseUs';
 import { Testimonials } from './components/Testimonials';
 import { InstagramGallery } from './components/InstagramGallery';
@@ -113,15 +112,6 @@ function MainApp() {
     }
   };
 
-  const handleSelectCollection = (collectionName) => {
-    setSelectedCategory('All');
-    setActiveTab('shop');
-    const catalogEl = document.getElementById('shop-catalog');
-    if (catalogEl) {
-      catalogEl.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
   const handleGenderSelect = (gender) => {
     setSelectedGender(gender);
     setSelectedCategory('All');
@@ -166,8 +156,6 @@ function MainApp() {
               setSelectedGender={setSelectedGender}
             />
 
-            <TrendingCollections onSelectCollection={handleSelectCollection} />
-
             <WhyChooseUs />
 
             <Testimonials />
@@ -194,7 +182,6 @@ function MainApp() {
 
         {activeTab === 'collections' && (
           <div className="pt-8">
-            <TrendingCollections onSelectCollection={handleSelectCollection} />
             <FeaturedCategories onSelectCategory={handleSelectCategory} />
             <Newsletter />
           </div>
