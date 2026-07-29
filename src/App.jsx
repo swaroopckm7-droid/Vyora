@@ -51,10 +51,13 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col items-center justify-center p-6 text-center">
-          <h1 className="font-playfair text-4xl text-[#D4AF37] mb-4">VyoraThreads Luxury Platform</h1>
-          <p className="text-gray-300 max-w-md mb-6 text-sm">
-            The application encountered a minor runtime glitch. Please refresh to reload the luxury atelier experience.
+          <h1 className="font-playfair text-4xl text-[#D4AF37] mb-4">VyoraThreads Diagnostics</h1>
+          <p className="text-gray-300 max-w-lg mb-4 text-sm">
+            Diagnostic Info:
           </p>
+          <div className="bg-red-950/80 border border-red-500/50 p-4 rounded-xl max-w-xl text-xs font-mono text-red-200 mb-6 text-left overflow-auto">
+            {this.state.error ? this.state.error.toString() : 'Unknown Runtime Exception'}
+          </div>
           <button
             onClick={() => window.location.reload()}
             className="px-6 py-3 bg-[#D4AF37] text-black font-extrabold text-xs uppercase tracking-widest rounded-full shadow-gold-glow"
