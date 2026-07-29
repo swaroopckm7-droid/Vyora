@@ -21,8 +21,8 @@ export const ProductGrid = ({
   // Focused Men's Collection Categories
   const categories = [
     'All',
-    'Shirts',
     'T-Shirts',
+    'Shirts',
     'Hoodies',
     'Track Pants'
   ];
@@ -101,14 +101,12 @@ export const ProductGrid = ({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {filteredProducts.map((product) => {
               const productId = product._id || product.id;
-              const badgeTag = product.category === 'Shirts' ? 'ONLINE EXCLUSIVE' : 
-                               product.category === 'Hoodies' ? '480GSM HEAVY TERRY' : 
-                               product.category === 'Track Pants' ? 'FLEECE JOGGER' : '100% SUPIMA COTTON';
-
               const isItemWishlisted = isInWishlist ? isInWishlist(productId) : false;
+
+              const currencySymbol = typeof product.price === 'number' && product.price > 300 ? '₹' : '$';
 
               return (
                 <div
@@ -117,9 +115,11 @@ export const ProductGrid = ({
                 >
                   {/* Image Container with Badge */}
                   <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1E1E]">
-                    <span className="absolute top-3 left-3 z-10 bg-white/90 text-black text-[10px] font-extrabold uppercase px-2.5 py-1 rounded shadow-sm tracking-wider">
-                      {badgeTag}
-                    </span>
+                    {product.discount > 0 && (
+                      <span className="absolute top-3 left-3 z-10 bg-[#D4AF37] text-black text-[10px] font-extrabold uppercase px-2.5 py-1 rounded shadow-md tracking-wider">
+                        {product.discount}% OFF
+                      </span>
+                    )}
 
                     <img
                       src={product.image || (product.images && product.images[0])}
@@ -153,7 +153,7 @@ export const ProductGrid = ({
                   {/* Garment Details */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
-                      <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold block mb-1">
+                      <span className="text-[10px] text-[#D4AF37] uppercase tracking-widest font-bold block mb-1">
                         MEN'S {product.category.toUpperCase()}
                       </span>
 
@@ -170,12 +170,12 @@ export const ProductGrid = ({
 
                       {/* Price */}
                       <div className="flex items-baseline gap-2 mb-4">
-                        <span className="text-[#D4AF37] font-extrabold text-base">
-                          ${product.price}
+                        <span className="text-[#D4AF37] font-extrabold text-lg">
+                          {currencySymbol}{product.price}
                         </span>
                         {product.originalPrice && (
                           <span className="text-gray-500 text-xs line-through">
-                            ${product.originalPrice}
+                            {currencySymbol}{product.originalPrice}
                           </span>
                         )}
                       </div>
