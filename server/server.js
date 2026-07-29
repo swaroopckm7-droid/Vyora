@@ -25,16 +25,13 @@ app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 
-// Categories route
+// Men's Exclusive Categories route
 app.get('/api/categories', (req, res) => {
   const categories = [
-    { id: 'tshirts', name: 'T-Shirts', count: 12, image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },
-    { id: 'hoodies', name: 'Hoodies', count: 8, image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80' },
-    { id: 'oversized', name: 'Oversized Wear', count: 15, image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?auto=format&fit=crop&w=600&q=80' },
-    { id: 'shirts', name: 'Shirts', count: 10, image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80' },
-    { id: 'jeans', name: 'Jeans', count: 7, image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=600&q=80' },
-    { id: 'jackets', name: 'Jackets', count: 9, image: 'https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=600&q=80' },
-    { id: 'accessories', name: 'Accessories', count: 14, image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80' }
+    { id: 'shirts', name: 'Shirts', count: 12, image: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80' },
+    { id: 'tshirts', name: 'T-Shirts', count: 15, image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80' },
+    { id: 'hoodies', name: 'Hoodies', count: 10, image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80' },
+    { id: 'trackpants', name: 'Track Pants', count: 14, image: 'https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=600&q=80' }
   ];
   return res.json({ success: true, categories });
 });

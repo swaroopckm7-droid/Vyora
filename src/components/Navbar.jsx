@@ -9,8 +9,7 @@ export const Navbar = ({
   setActiveTab,
   onOpenSearch,
   onOpenAccount,
-  onCategorySelect,
-  onGenderSelect
+  onCategorySelect
 }) => {
   const { totalItems = 0, setIsCartOpen } = useCart() || {};
   const { wishlistItems = [], setIsWishlistOpen } = useWishlist() || {};
@@ -27,11 +26,11 @@ export const Navbar = ({
 
   const navLinks = [
     { label: 'Home', tab: 'home' },
-    { label: 'Men', tab: 'shop', gender: 'Men' },
-    { label: 'Women', tab: 'shop', gender: 'Women' },
-    { label: 'New Arrivals', tab: 'shop', category: 'Oversized Wear' },
+    { label: 'Shirts', tab: 'shop', category: 'Shirts' },
+    { label: 'T-Shirts', tab: 'shop', category: 'T-Shirts' },
+    { label: 'Hoodies', tab: 'shop', category: 'Hoodies' },
+    { label: 'Track Pants', tab: 'shop', category: 'Track Pants' },
     { label: 'Collections', tab: 'collections' },
-    { label: 'Lookbook', tab: 'collections' },
     { label: 'About', tab: 'about' },
     { label: 'Contact', tab: 'contact' }
   ];
@@ -66,7 +65,6 @@ export const Navbar = ({
                 key={idx}
                 onClick={() => {
                   setActiveTab(link.tab);
-                  if (link.gender && onGenderSelect) onGenderSelect(link.gender);
                   if (link.category && onCategorySelect) onCategorySelect(link.category);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
@@ -155,7 +153,6 @@ export const Navbar = ({
               key={idx}
               onClick={() => {
                 setActiveTab(link.tab);
-                if (link.gender && onGenderSelect) onGenderSelect(link.gender);
                 if (link.category && onCategorySelect) onCategorySelect(link.category);
                 setIsMobileMenuOpen(false);
               }}

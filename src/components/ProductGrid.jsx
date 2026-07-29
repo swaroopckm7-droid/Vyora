@@ -18,18 +18,15 @@ export const ProductGrid = ({
 
   const filterTabs = ["EDITOR'S CHOICE", "POPULAR", "RESTOCK ITEMS"];
 
+  // Focused Men's Collection Categories
   const categories = [
     'All',
+    'Shirts',
     'T-Shirts',
     'Hoodies',
-    'Oversized Wear',
-    'Shirts',
-    'Jeans',
-    'Jackets',
-    'Accessories'
+    'Track Pants'
   ];
 
-  // Safe filtering products
   const safeProducts = Array.isArray(products) ? products : [];
 
   const filteredProducts = safeProducts.filter((item) => {
@@ -39,13 +36,7 @@ export const ProductGrid = ({
       selectedCategory === 'All' ||
       (item.category && item.category.toLowerCase() === selectedCategory.toLowerCase());
 
-    const matchesGender =
-      selectedGender === 'All' ||
-      !item.gender ||
-      item.gender.toLowerCase() === selectedGender.toLowerCase() ||
-      item.gender === 'Unisex';
-
-    return matchesCategory && matchesGender;
+    return matchesCategory;
   });
 
   return (
@@ -54,8 +45,11 @@ export const ProductGrid = ({
         
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
+          <span className="text-[#D4AF37] text-xs font-bold uppercase tracking-[0.3em] block mb-2">
+            Exclusive Men's Collection
+          </span>
           <h2 className="font-cormorant font-normal text-4xl sm:text-6xl text-white tracking-wider uppercase mb-6">
-            FEATURED PRODUCTS
+            FEATURED GARMENTS
           </h2>
 
           {/* Editor's Choice / Popular / Restock Items Tabs */}
@@ -75,13 +69,13 @@ export const ProductGrid = ({
             ))}
           </div>
 
-          {/* Category Filter Pills */}
-          <div className="flex items-center justify-center flex-wrap gap-2">
+          {/* 4 Men's Category Filter Pills */}
+          <div className="flex items-center justify-center flex-wrap gap-2.5">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border ${
+                className={`px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all border ${
                   selectedCategory === cat
                     ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-gold-glow font-extrabold'
                     : 'bg-[#141414] text-gray-300 border-white/10 hover:border-[#D4AF37]/50'
@@ -100,7 +94,6 @@ export const ProductGrid = ({
             <button
               onClick={() => {
                 setSelectedCategory('All');
-                setSelectedGender('All');
               }}
               className="mt-4 px-6 py-2.5 bg-[#D4AF37] text-black font-bold text-xs rounded-full uppercase tracking-wider"
             >
@@ -112,7 +105,8 @@ export const ProductGrid = ({
             {filteredProducts.map((product) => {
               const productId = product._id || product.id;
               const badgeTag = product.category === 'Shirts' ? 'ONLINE EXCLUSIVE' : 
-                               product.category === 'Hoodies' ? 'WASHABLE' : '100% UV BLOCKING';
+                               product.category === 'Hoodies' ? '480GSM HEAVY TERRY' : 
+                               product.category === 'Track Pants' ? 'FLEECE JOGGER' : '100% SUPIMA COTTON';
 
               const isItemWishlisted = isInWishlist ? isInWishlist(productId) : false;
 
@@ -128,7 +122,7 @@ export const ProductGrid = ({
                     </span>
 
                     <img
-                      src={product.image}
+                      src={product.image || (product.images && product.images[0])}
                       alt={product.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
@@ -160,7 +154,7 @@ export const ProductGrid = ({
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
                       <span className="text-[10px] text-gray-400 uppercase tracking-widest font-bold block mb-1">
-                        {product.brand || 'VYORA'}
+                        MEN'S {product.category.toUpperCase()}
                       </span>
 
                       <h3 className="font-poppins font-bold text-sm text-white line-clamp-1 mb-2 group-hover:text-[#D4AF37] transition-colors">
@@ -169,8 +163,8 @@ export const ProductGrid = ({
 
                       {/* Color Swatch Dots */}
                       <div className="flex items-center gap-1.5 mb-3">
-                        <span className="w-3.5 h-3.5 rounded-full bg-amber-900 border border-white/20" />
                         <span className="w-3.5 h-3.5 rounded-full bg-black border border-white/20" />
+                        <span className="w-3.5 h-3.5 rounded-full bg-[#D4AF37] border border-white/20" />
                         <span className="w-3.5 h-3.5 rounded-full bg-slate-700 border border-white/20" />
                       </div>
 
