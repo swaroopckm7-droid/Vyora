@@ -5,7 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
 export const ProductGrid = ({
-  products,
+  products = [],
   onQuickView,
   selectedCategory,
   setSelectedCategory,
@@ -13,8 +13,8 @@ export const ProductGrid = ({
   setSelectedGender
 }) => {
   const [activeTab, setActiveTab] = useState("EDITOR'S CHOICE");
-  const { addToCart } = useCart();
-  const { addToWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart() || {};
+  const { toggleWishlist, isInWishlist } = useWishlist() || {};
 
   const filterTabs = ["EDITOR'S CHOICE", "POPULAR", "RESTOCK ITEMS"];
 
@@ -29,11 +29,15 @@ export const ProductGrid = ({
     'Accessories'
   ];
 
-  // Filtering products
-  const filteredProducts = products.filter((item) => {
+  // Safe filtering products
+  const safeProducts = Array.isArray(products) ? products : [];
+
+  const filteredProducts = safeProducts.filter((item) => {
+    if (!item) return false;
+
     const matchesCategory =
       selectedCategory === 'All' ||
-      item.category.toLowerCase() === selectedCategory.toLowerCase();
+      (item.category && item.category.toLowerCase() === selectedCategory.toLowerCase());
 
     const matchesGender =
       selectedGender === 'All' ||
@@ -45,7 +49,7 @@ export const ProductGrid = ({
   });
 
   return (
-    <section id="shop-catalog" className="py-20 bg-vyora-black border-t border-white/5">
+    <section id="shop-catalog" className="py-20 bg-[#0D0D0D] border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -62,7 +66,7 @@ export const ProductGrid = ({
                 onClick={() => setActiveTab(tab)}
                 className={`text-xs sm:text-sm font-bold uppercase tracking-widest transition-all relative pb-2 ${
                   activeTab === tab
-                    ? 'text-gold border-b-2 border-gold font-extrabold'
+                    ? 'text-[#D4AF37] border-b-2 border-[#D4AF37] font-extrabold'
                     : 'text-gray-400 hover:text-white'
                 }`}
               >
@@ -79,8 +83,8 @@ export const ProductGrid = ({
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border ${
                   selectedCategory === cat
-                    ? 'bg-gold text-black border-gold shadow-gold-glow'
-                    : 'bg-charcoal text-gray-300 border-white/10 hover:border-gold/50'
+                    ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-gold-glow font-extrabold'
+                    : 'bg-[#141414] text-gray-300 border-white/10 hover:border-[#D4AF37]/50'
                 }`}
               >
                 {cat}
@@ -98,7 +102,7 @@ export const ProductGrid = ({
                 setSelectedCategory('All');
                 setSelectedGender('All');
               }}
-              className="mt-4 px-6 py-2.5 bg-gold text-black font-bold text-xs rounded-full uppercase tracking-wider"
+              className="mt-4 px-6 py-2.5 bg-[#D4AF37] text-black font-bold text-xs rounded-full uppercase tracking-wider"
             >
               Reset Filters
             </button>
@@ -106,16 +110,19 @@ export const ProductGrid = ({
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {filteredProducts.map((product) => {
+              const productId = product._id || product.id;
               const badgeTag = product.category === 'Shirts' ? 'ONLINE EXCLUSIVE' : 
                                product.category === 'Hoodies' ? 'WASHABLE' : '100% UV BLOCKING';
 
+              const isItemWishlisted = isInWishlist ? isInWishlist(productId) : false;
+
               return (
                 <div
-                  key={product._id}
-                  className="group relative flex flex-col justify-between bg-vyora-card rounded-2xl p-4 border border-white/10 hover:border-gold/40 transition-all duration-300 shadow-lg text-left"
+                  key={productId}
+                  className="group relative flex flex-col justify-between bg-[#141414] rounded-2xl p-4 border border-white/10 hover:border-[#D4AF37]/40 transition-all duration-300 shadow-lg text-left"
                 >
                   {/* Image Container with Badge */}
-                  <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 bg-charcoal">
+                  <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1E1E]">
                     <span className="absolute top-3 left-3 z-10 bg-white/90 text-black text-[10px] font-extrabold uppercase px-2.5 py-1 rounded shadow-sm tracking-wider">
                       {badgeTag}
                     </span>
@@ -130,18 +137,18 @@ export const ProductGrid = ({
                     {/* Hover Quick Actions */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                       <button
-                        onClick={() => addToWishlist(product)}
-                        className={`w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-gold transition-colors ${
-                          isInWishlist(product._id) ? 'bg-gold text-black' : ''
+                        onClick={() => toggleWishlist && toggleWishlist(product)}
+                        className={`w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-[#D4AF37] transition-colors ${
+                          isItemWishlisted ? 'bg-[#D4AF37] text-black' : ''
                         }`}
-                        title="Add to Wishlist"
+                        title="Toggle Wishlist"
                       >
                         <Heart className="w-4 h-4 fill-current" />
                       </button>
 
                       <button
-                        onClick={() => onQuickView(product)}
-                        className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-gold transition-colors"
+                        onClick={() => onQuickView && onQuickView(product)}
+                        className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-[#D4AF37] transition-colors"
                         title="Quick View"
                       >
                         <Eye className="w-4 h-4" />
@@ -156,20 +163,20 @@ export const ProductGrid = ({
                         {product.brand || 'VYORA'}
                       </span>
 
-                      <h3 className="font-poppins font-bold text-sm text-white line-clamp-1 mb-2 group-hover:text-gold transition-colors">
+                      <h3 className="font-poppins font-bold text-sm text-white line-clamp-1 mb-2 group-hover:text-[#D4AF37] transition-colors">
                         {product.name}
                       </h3>
 
                       {/* Color Swatch Dots */}
                       <div className="flex items-center gap-1.5 mb-3">
                         <span className="w-3.5 h-3.5 rounded-full bg-amber-900 border border-white/20" />
-                        <span className="w-3.5 h-3.5 rounded-full bg-charcoal border border-white/20" />
+                        <span className="w-3.5 h-3.5 rounded-full bg-black border border-white/20" />
                         <span className="w-3.5 h-3.5 rounded-full bg-slate-700 border border-white/20" />
                       </div>
 
                       {/* Price */}
                       <div className="flex items-baseline gap-2 mb-4">
-                        <span className="text-gold font-extrabold text-base">
+                        <span className="text-[#D4AF37] font-extrabold text-base">
                           ${product.price}
                         </span>
                         {product.originalPrice && (
@@ -182,8 +189,8 @@ export const ProductGrid = ({
 
                     {/* Add to Basket Button */}
                     <button
-                      onClick={() => addToCart(product, 1)}
-                      className="w-full py-2.5 border border-white/20 group-hover:border-gold group-hover:bg-gold group-hover:text-black text-white text-xs font-bold uppercase tracking-wider transition-all rounded-lg flex items-center justify-center gap-2"
+                      onClick={() => addToCart && addToCart(product, 1)}
+                      className="w-full py-2.5 border border-white/20 group-hover:border-[#D4AF37] group-hover:bg-[#D4AF37] group-hover:text-black text-white text-xs font-bold uppercase tracking-wider transition-all rounded-lg flex items-center justify-center gap-2"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
                       <span>ADD TO BASKET</span>

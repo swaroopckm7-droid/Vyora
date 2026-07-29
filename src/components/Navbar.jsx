@@ -12,8 +12,8 @@ export const Navbar = ({
   onCategorySelect,
   onGenderSelect
 }) => {
-  const { totalItems, setIsCartOpen } = useCart();
-  const { wishlist, setIsWishlistOpen } = useWishlist();
+  const { totalItems = 0, setIsCartOpen } = useCart() || {};
+  const { wishlistItems = [], setIsWishlistOpen } = useWishlist() || {};
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -92,21 +92,21 @@ export const Navbar = ({
 
             {/* Wishlist Icon */}
             <button
-              onClick={() => setIsWishlistOpen(true)}
+              onClick={() => setIsWishlistOpen && setIsWishlistOpen(true)}
               className="p-2 text-gray-300 hover:text-[#D4AF37] transition-colors relative rounded-full hover:bg-white/5"
               title="Wishlist"
             >
               <Heart className="w-5 h-5" />
-              {wishlist.length > 0 && (
+              {wishlistItems && wishlistItems.length > 0 && (
                 <span className="absolute top-1 right-1 bg-[#D4AF37] text-black text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow-gold-glow">
-                  {wishlist.length}
+                  {wishlistItems.length}
                 </span>
               )}
             </button>
 
             {/* Cart Icon */}
             <button
-              onClick={() => setIsCartOpen(true)}
+              onClick={() => setIsCartOpen && setIsCartOpen(true)}
               className="p-2 text-gray-300 hover:text-[#D4AF37] transition-colors relative rounded-full hover:bg-white/5"
               title="Shopping Cart"
             >
