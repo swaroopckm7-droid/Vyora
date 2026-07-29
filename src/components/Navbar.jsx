@@ -37,27 +37,30 @@ export const Navbar = ({
   ];
 
   return (
-    <header className={`sticky top-0 z-40 transition-all duration-500 ${isScrolled ? 'glass-nav py-3' : 'bg-[#0D0D0D]/90 backdrop-blur-md py-4 border-b border-white/10'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between">
+    <header className={`sticky top-0 z-40 transition-all duration-500 ${isScrolled ? 'glass-nav py-3' : 'bg-[#0D0D0D]/95 backdrop-blur-md py-4 border-b border-white/10'}`}>
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-4">
           
           {/* Left: Mobile Menu Toggle & Brand Logo */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 shrink-0 mr-4 lg:mr-8">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden text-gray-300 hover:text-gold p-1"
+              className="lg:hidden text-gray-300 hover:text-[#D4AF37] p-1"
               aria-label="Toggle Menu"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
             </button>
 
-            <button onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-left focus:outline-none">
-              <VyoraLogo className="h-10 sm:h-12" />
+            <button 
+              onClick={() => { setActiveTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} 
+              className="text-left focus:outline-none shrink-0"
+            >
+              <VyoraLogo className="h-9 sm:h-10" />
             </button>
           </div>
 
           {/* Center Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center justify-center gap-5 xl:gap-8 flex-1">
             {navLinks.map((link, idx) => (
               <button
                 key={idx}
@@ -67,7 +70,7 @@ export const Navbar = ({
                   if (link.category && onCategorySelect) onCategorySelect(link.category);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`text-xs font-bold uppercase tracking-[0.2em] transition-all relative py-1 ${
+                className={`text-[11px] xl:text-xs font-bold uppercase tracking-[0.2em] transition-all relative py-1 shrink-0 ${
                   activeTab === link.tab
                     ? 'text-[#D4AF37] after:content-[""] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-[#D4AF37]'
                     : 'text-gray-300 hover:text-white'
@@ -78,8 +81,8 @@ export const Navbar = ({
             ))}
           </nav>
 
-          {/* Right Action Icons: Search, Wishlist, Cart, Profile */}
-          <div className="flex items-center gap-4 sm:gap-6">
+          {/* Right Action Icons: Search, Wishlist, Cart, Profile, Owner */}
+          <div className="flex items-center gap-3 sm:gap-5 shrink-0 ml-auto lg:ml-0">
             
             {/* Search Icon */}
             <button
@@ -118,7 +121,7 @@ export const Navbar = ({
               )}
             </button>
 
-            {/* User Account Modal Launcher */}
+            {/* User Account Launcher */}
             <div className="flex items-center pl-2 border-l border-white/10">
               <button
                 onClick={onOpenAccount}
@@ -132,7 +135,7 @@ export const Navbar = ({
             {/* Owner Portal Quick Link */}
             <button
               onClick={() => setActiveTab('owner-dashboard')}
-              className="hidden xl:flex items-center gap-1.5 bg-white/5 hover:bg-[#D4AF37] hover:text-black text-gray-300 text-[10px] font-extrabold uppercase px-3 py-1.5 rounded-full border border-white/10 transition-colors"
+              className="hidden 2xl:flex items-center gap-1.5 bg-white/5 hover:bg-[#D4AF37] hover:text-black text-gray-300 text-[10px] font-extrabold uppercase px-3 py-1.5 rounded-full border border-white/10 transition-colors"
               title="Store Owner Management Dashboard"
             >
               <Crown className="w-3 h-3 text-[#D4AF37]" />
