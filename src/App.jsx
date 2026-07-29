@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import { ClerkProvider } from '@clerk/clerk-react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
@@ -29,9 +29,45 @@ import { ToastProvider } from './context/ToastContext';
 import { fetchProducts } from './services/api';
 
 const CLERK_PUBLISHABLE_KEY = 
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || 
-  import.meta.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || 
+  (import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || '').trim() || 
+  (import.meta.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || '').trim() || 
   'pk_test_ZGVjZW50LWNyYWItMTQuY2xlcmsuYWNjb3VudHMuZGV2JA';
+
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error("VyoraApp Error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen bg-[#0D0D0D] text-white flex flex-col items-center justify-center p-6 text-center">
+          <h1 className="font-playfair text-4xl text-[#D4AF37] mb-4">VyoraThreads Luxury Platform</h1>
+          <p className="text-gray-300 max-w-md mb-6 text-sm">
+            The application encountered a minor runtime glitch. Please refresh to reload the luxury atelier experience.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-[#D4AF37] text-black font-extrabold text-xs uppercase tracking-widest rounded-full shadow-gold-glow"
+          >
+            Reload Page
+          </button>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 function MainApp() {
   const [activeTab, setActiveTab] = useState('home');
@@ -50,9 +86,15 @@ function MainApp() {
 
   const reloadCatalog = async () => {
     setLoading(true);
-    const data = await fetchProducts();
-    setProducts(data);
-    setLoading(false);
+    try {
+      const data = await fetchProducts();
+      setProducts(data || []);
+    } catch (e) {
+      console.error('Fetch products error:', e);
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -84,7 +126,7 @@ function MainApp() {
   };
 
   return (
-    <div className="min-h-screen bg-vyora-black text-gray-100 flex flex-col justify-between">
+    <div className="min-h-screen bg-[#0D0D0D] text-gray-100 flex flex-col justify-between">
       
       {/* Sticky Header Navbar */}
       <Navbar
@@ -220,16 +262,18 @@ function MainApp() {
 
 export default function App() {
   return (
-    <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
-      <ThemeProvider>
-        <ToastProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <MainApp />
-            </WishlistProvider>
-          </CartProvider>
-        </ToastProvider>
-      </ThemeProvider>
-    </ClerkProvider>
+    <ErrorBoundary>
+      <ClerkProvider publishableKey={CLERK_PUBLISHABLE_KEY}>
+        <ThemeProvider>
+          <ToastProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <MainApp />
+              </WishlistProvider>
+            </CartProvider>
+          </ToastProvider>
+        </ThemeProvider>
+      </ClerkProvider>
+    </ErrorBoundary>
   );
 }
