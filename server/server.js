@@ -19,17 +19,17 @@ app.use(cors({
   origin: '*',
   credentials: true
 }));
-app.use(express.json({ limit: '20mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 
-// Gemini AI Virtual Try-On Fitting Generation Endpoint
+// Gemini AI Full-Body Virtual Try-On Generation Endpoint
 app.post('/api/generate-vto', async (req, res) => {
   try {
-    const { customerImage, productName, category } = req.body;
+    const { customerImage, garmentImage, productName, category } = req.body;
 
     if (!customerImage || !productName) {
       return res.status(400).json({ success: false, message: 'Customer image and product details required' });
@@ -40,28 +40,58 @@ app.post('/api/generate-vto', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Gemini API key not configured' });
     }
 
-    // Call Gemini Multimodal API endpoint
+    // Call Gemini 1.5 Flash Vision Endpoint with Strict Full-Body Generation Prompt
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
-    const promptText = `High fashion Virtual Try-On synthesis request. Customer photo attached. Generate an accurate photorealistic description and image of this user wearing the luxury VyoraThreads garment: "${productName}" (${category}). Ensure natural neck fit, accurate posture, and premium lighting.`;
+    const strictPrompt = `
+TASK:
+Create a photorealistic FULL-BODY e-commerce fashion model image using the uploaded PERSON photo as identity reference and the GARMENT "${productName}" (${category}).
+
+STRICT RULES:
+IDENTITY:
+- Preserve the person's facial identity exactly (skin tone, expression, hairstyle, beard, facial features).
+- 100% identity preservation. Do NOT merge or blend with another person's face.
+
+BODY & POSE:
+- Generate one complete human body matching the uploaded person's natural proportions.
+- Generate natural standing full-body posture with feet visible.
+
+GARMENT & APPAREL:
+- Replace ONLY the clothing with the uploaded garment "${productName}".
+- Preserve garment color, fabric texture, prints, logos, embroidery, and collar/sleeve details exactly.
+- Garment must fit naturally with realistic fabric folds and ambient lighting.
+
+IMAGE QUALITY & COMPOSITION:
+- Ultra photorealistic e-commerce fashion photography, high resolution, sharp focus.
+- Clean luxury studio background with natural shadows.
+- No transparency, no ghosting, no circle overlays, no compositing artifacts.
+`;
 
     // Strip base64 prefix if present
-    const cleanBase64 = customerImage.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, '');
+    const cleanCustomerBase64 = customerImage.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, '');
+
+    const inlineParts = [
+      { text: strictPrompt },
+      {
+        inline_data: {
+          mime_type: 'image/png',
+          data: cleanCustomerBase64
+        }
+      }
+    ];
+
+    if (garmentImage && garmentImage.startsWith('data:image')) {
+      const cleanGarmentBase64 = garmentImage.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, '');
+      inlineParts.push({
+        inline_data: {
+          mime_type: 'image/png',
+          data: cleanGarmentBase64
+        }
+      });
+    }
 
     const geminiPayload = {
-      contents: [
-        {
-          parts: [
-            { text: promptText },
-            {
-              inline_data: {
-                mime_type: 'image/png',
-                data: cleanBase64
-              }
-            }
-          ]
-        }
-      ]
+      contents: [{ parts: inlineParts }]
     };
 
     const response = await fetch(geminiUrl, {
@@ -74,7 +104,7 @@ app.post('/api/generate-vto', async (req, res) => {
 
     return res.json({
       success: true,
-      message: 'Gemini AI fitting processed',
+      message: 'Gemini AI full-body fitting processed',
       data: data,
       apiKeyActive: true
     });
@@ -123,5 +153,5 @@ connectDB().then((isMongoConnected) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`VyoraThreads Backend Server with Gemini AI integration listening on http://0.0.0.0:${PORT}`);
+  console.log(`VyoraThreads Backend Server listening on http://0.0.0.0:${PORT}`);
 });

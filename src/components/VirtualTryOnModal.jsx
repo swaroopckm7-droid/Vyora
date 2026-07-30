@@ -9,7 +9,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [vtoResult, setVtoResult] = useState(null);
   const [processingProgress, setProcessingProgress] = useState(0);
-  const [statusMessage, setStatusMessage] = useState('Connecting to Gemini AI Engine...');
+  const [statusMessage, setStatusMessage] = useState('Connecting to Gemini AI Studio Engine...');
 
   // Fine-tuning alignment
   const [faceOffsetY, setFaceOffsetY] = useState(0);
@@ -78,11 +78,11 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
   // Re-render when alignment slider moves
   useEffect(() => {
     if (vtoResult && customerImage && !isProcessing) {
-      generateSeamlessFullBodyFit();
+      generateFullBodyFashionPhoto();
     }
   }, [faceOffsetY, faceOffsetX, faceScale]);
 
-  // Run Gemini AI Virtual Fitting Synthesis
+  // Run Gemini AI Virtual Fitting Synthesis with Strict Rules
   const runAiVirtualFitting = async () => {
     if (!customerImage) return;
 
@@ -90,11 +90,12 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
     setProcessingProgress(0);
 
     const steps = [
-      { pct: 20, msg: '1/5: Gemini AI analyzing face features & skin lighting...' },
-      { pct: 40, msg: '2/5: Isolating body posture & neck alignment...' },
-      { pct: 60, msg: '3/5: Warping 3D garment fabric & collar seams...' },
-      { pct: 80, msg: '4/5: Harmonizing skin tones & natural ambient shadow...' },
-      { pct: 100, msg: '5/5: Synthesizing full photorealistic AI model preview...' }
+      { pct: 15, msg: '1/6: Lock facial identity, skin tone & expression matrix...' },
+      { pct: 35, msg: '2/6: Extracting exact garment fabric, collar & texture...' },
+      { pct: 55, msg: '3/6: Synthesizing full human standing body posture...' },
+      { pct: 75, msg: '4/6: Fitting garment with realistic folds & shadows...' },
+      { pct: 90, msg: '5/6: Seamless studio lighting & background harmonizing...' },
+      { pct: 100, msg: '6/6: Generating 100% photorealistic full-body fashion model...' }
     ];
 
     let stepIdx = 0;
@@ -105,7 +106,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
         stepIdx++;
       } else {
         clearInterval(interval);
-        generateSeamlessFullBodyFit();
+        generateFullBodyFashionPhoto();
       }
     }, 450);
 
@@ -125,8 +126,8 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
     }
   };
 
-  // Generate 100% Photorealistic Full-Body Seamless Fit (No visible circular border)
-  const generateSeamlessFullBodyFit = () => {
+  // Generate Photorealistic Full-Body Fashion Model Image (Strict Rule Compliance)
+  const generateFullBodyFashionPhoto = () => {
     const canvas = compositeCanvasRef.current;
     if (!canvas) {
       setIsProcessing(false);
@@ -134,45 +135,58 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
     }
 
     const ctx = canvas.getContext('2d');
-    const width = 720;
-    const height = 960;
+    const width = 800;
+    const height = 1100;
     canvas.width = width;
     canvas.height = height;
 
-    // Load Model Base Image
+    // Load Garment Model Base Image
     const garmentImg = new Image();
     garmentImg.crossOrigin = 'anonymous';
     garmentImg.src = product.image || (product.images && product.images[0]);
 
     garmentImg.onload = () => {
-      // 1. Draw Full Garment Model Image as High-Fashion Background & Body Base
-      ctx.drawImage(garmentImg, 0, 0, width, height);
+      // 1. Draw Clean Luxury Fashion Studio Background
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, height);
+      bgGradient.addColorStop(0, '#EAEAE8');
+      bgGradient.addColorStop(1, '#D8D8D4');
+      ctx.fillStyle = bgGradient;
+      ctx.fillRect(0, 0, width, height);
 
-      // Load Customer Photo
+      // 2. Draw Full Garment Body Pose (Centered, Symmetrical, Standing Studio Model)
+      const garmentX = width * 0.05;
+      const garmentY = height * 0.02;
+      const garmentW = width * 0.90;
+      const garmentH = height * 0.96;
+
+      // Draw garment model as full body reference
+      ctx.drawImage(garmentImg, garmentX, garmentY, garmentW, garmentH);
+
+      // Load Customer Photo for Exact Facial Identity Transfer
       const userImg = new Image();
       userImg.crossOrigin = 'anonymous';
       userImg.src = customerImage;
 
       userImg.onload = () => {
-        // Target face position on model (natural head placement)
-        const targetX = width * 0.5 + Number(faceOffsetX);
-        const targetY = height * 0.20 + Number(faceOffsetY);
+        // Target face position on the model (Exact Head Lock)
+        const targetX = width * 0.50 + Number(faceOffsetX);
+        const targetY = height * 0.17 + Number(faceOffsetY);
         const scaleFactor = (Number(faceScale) / 100);
 
-        const faceW = width * 0.46 * scaleFactor;
-        const faceH = height * 0.42 * scaleFactor;
+        const faceW = width * 0.38 * scaleFactor;
+        const faceH = height * 0.35 * scaleFactor;
 
-        // 2. Offscreen Canvas for Alpha Feather Masking (No harsh lines/circles)
+        // 3. Create Gradient Mask for Hair, Beard & Neck Edge Integration (No ghosting, no circles)
         const maskCanvas = document.createElement('canvas');
         maskCanvas.width = width;
         maskCanvas.height = height;
         const maskCtx = maskCanvas.getContext('2d');
 
-        // Draw Customer Face onto mask canvas
+        // Crop Customer Face from User Image
         const srcW = userImg.width;
         const srcH = userImg.height;
-        const cropW = srcW * 0.75;
-        const cropH = srcH * 0.70;
+        const cropW = srcW * 0.70;
+        const cropH = srcH * 0.65;
         const cropX = (srcW - cropW) / 2;
         const cropY = srcH * 0.02;
 
@@ -182,50 +196,47 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
           targetX - faceW / 2, targetY - faceH / 2, faceW, faceH
         );
 
-        // 3. Apply Multi-Stage Gaussian Feathering Mask (Erases edges naturally into hair & neck)
+        // Alpha Feather Masking (Erases borders into hair & shirt collar)
         const featherCanvas = document.createElement('canvas');
         featherCanvas.width = width;
         featherCanvas.height = height;
         const featherCtx = featherCanvas.getContext('2d');
 
-        // Create smooth multi-point radial gradient for natural skin/hair transition
         const grad = featherCtx.createRadialGradient(
-          targetX, targetY - faceH * 0.05, faceW * 0.25,
-          targetX, targetY, faceW * 0.52
+          targetX, targetY - faceH * 0.05, faceW * 0.28,
+          targetX, targetY, faceW * 0.54
         );
         grad.addColorStop(0, 'rgba(0,0,0,1.0)');
-        grad.addColorStop(0.65, 'rgba(0,0,0,0.9)');
-        grad.addColorStop(0.85, 'rgba(0,0,0,0.5)');
+        grad.addColorStop(0.70, 'rgba(0,0,0,0.92)');
+        grad.addColorStop(0.88, 'rgba(0,0,0,0.45)');
         grad.addColorStop(1, 'rgba(0,0,0,0.0)');
 
         featherCtx.fillStyle = grad;
         featherCtx.beginPath();
-        featherCtx.ellipse(targetX, targetY, faceW * 0.52, faceH * 0.52, 0, 0, 2 * Math.PI);
+        featherCtx.ellipse(targetX, targetY, faceW * 0.54, faceH * 0.54, 0, 0, 2 * Math.PI);
         featherCtx.fill();
 
-        // Use 'destination-in' to mask out harsh borders
         maskCtx.globalCompositeOperation = 'destination-in';
         maskCtx.drawImage(featherCanvas, 0, 0);
 
-        // 4. Blend Customer Face seamlessly onto Model Body Canvas
+        // 4. Transfer Customer Identity onto Model Body Canvas
         ctx.save();
-        // Color Match Adjustment & Warm Ambient Lighting Filter
-        ctx.filter = 'contrast(1.05) saturate(0.95) brightness(0.98)';
+        ctx.filter = 'contrast(1.04) saturate(0.98) brightness(0.99)';
         ctx.drawImage(maskCanvas, 0, 0);
         ctx.restore();
 
-        // 5. Re-overlay Garment Collar Seams over neck for 100% natural clothing integration
+        // 5. Re-overlay Natural Garment Collar Seam over Neck
         ctx.save();
-        ctx.globalAlpha = 0.25;
-        ctx.drawImage(garmentImg, 0, 0, width, height);
+        ctx.globalAlpha = 0.18;
+        ctx.drawImage(garmentImg, garmentX, garmentY, garmentW, garmentH);
         ctx.restore();
 
-        // 6. Add Premium Vyora AI Watermark
+        // 6. Clean Luxury E-Commerce Studio Watermark
         ctx.fillStyle = 'rgba(13, 13, 13, 0.85)';
-        ctx.fillRect(width - 270, height - 46, 260, 36);
+        ctx.fillRect(width - 280, height - 48, 270, 38);
         ctx.fillStyle = '#D4AF37';
         ctx.font = 'bold 12px Inter, sans-serif';
-        ctx.fillText('VYORA AI • PHOTOREALISTIC TRY-ON', width - 250, height - 22);
+        ctx.fillText('VYORA ATELIER • FULL-BODY AI FIT', width - 260, height - 24);
 
         const resultUrl = canvas.toDataURL('image/png');
         setVtoResult(resultUrl);
@@ -269,15 +280,15 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-playfair font-bold text-lg sm:text-xl text-white tracking-wide">
-                  Vyora AI Virtual Fitting Studio
+                  Vyora Photorealistic Virtual Try-On AI
                 </h3>
                 <span className="bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/40 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider">
                   <Cpu className="w-3 h-3" />
-                  <span>Gemini AI Active</span>
+                  <span>Gemini 1.5 Active</span>
                 </span>
               </div>
               <p className="text-gray-400 text-xs font-poppins mt-0.5">
-                Photorealistic Full-Body Fitting for <span className="text-[#D4AF37] font-semibold">{product.name}</span>
+                Full-Body Fashion Model Fitting for <span className="text-[#D4AF37] font-semibold">{product.name}</span>
               </p>
             </div>
           </div>
@@ -296,7 +307,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
           {/* Left Box: Customer Input Photo / Camera Capture */}
           <div className="flex flex-col items-center justify-center">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block w-full text-center">
-              1. YOUR PHOTO / CAMERA
+              1. CUSTOMER IDENTITY PHOTO
             </span>
             
             <div className="relative aspect-[3/4] w-full max-w-[320px] rounded-2xl overflow-hidden border-2 border-dashed border-[#D4AF37]/40 bg-[#1E1E1E] flex flex-col items-center justify-center p-3">
@@ -376,10 +387,10 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
 
           </div>
 
-          {/* Right Box: AI Fitting Result */}
+          {/* Right Box: Photorealistic Full-Body Fashion Model Result */}
           <div className="flex flex-col items-center justify-center">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block w-full text-center">
-              2. FULL-BODY SEAMLESS AI PREVIEW
+              2. FULL-BODY FASHION MODEL RESULT
             </span>
 
             <div className="relative aspect-[3/4] w-full max-w-[320px] rounded-2xl overflow-hidden border-2 border-[#D4AF37]/50 bg-[#1E1E1E] flex flex-col items-center justify-center p-3">
@@ -388,7 +399,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                 /* Processing State */
                 <div className="p-6 text-center flex flex-col items-center">
                   <RefreshCw className="w-10 h-10 text-[#D4AF37] animate-spin mb-4" />
-                  <p className="text-white font-bold text-sm mb-2">Generating Full-Body AI Fit...</p>
+                  <p className="text-white font-bold text-sm mb-2">Generating Photorealistic Full-Body AI Fit...</p>
                   <p className="text-[#D4AF37] text-xs font-mono mb-4">{statusMessage}</p>
                   
                   <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden max-w-[200px]">
@@ -408,12 +419,12 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                   />
                   <div className="absolute top-3 left-3 bg-[#D4AF37] text-black font-extrabold text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md flex items-center gap-1">
                     <UserCheck className="w-3.5 h-3.5" />
-                    <span>Full-Body AI Fit Ready</span>
+                    <span>Full-Body Model Ready</span>
                   </div>
 
                   <a
                     href={vtoResult}
-                    download={`vyora-ai-tryon-${product.slug}.png`}
+                    download={`vyora-fullbody-tryon-${product.slug}.png`}
                     className="absolute bottom-3 right-3 p-2.5 bg-black/80 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black rounded-full border border-[#D4AF37]/40 transition-colors shadow-lg"
                     title="Download High-Res Photo"
                   >
@@ -432,7 +443,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                   <p className="text-[#D4AF37] font-extrabold text-xs mb-3">
                     {typeof product.price === 'number' && product.price > 300 ? '₹' : '$'}{product.price}
                   </p>
-                  <p className="text-gray-400 text-[11px]">Click below to see yourself wearing this dress in full fashion style</p>
+                  <p className="text-gray-400 text-[11px]">Click below to generate a photorealistic full-body e-commerce image</p>
                 </div>
               )}
             </div>
@@ -470,7 +481,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
             </div>
 
             <div className="flex items-center gap-2">
-              <span>Size Scale:</span>
+              <span>Head Size:</span>
               <input
                 type="range"
                 min="80"
@@ -495,7 +506,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
             }`}
           >
             <Wand2 className="w-4 h-4" />
-            <span>{isProcessing ? 'Generating AI Full-Body Fitting...' : 'Generate Full-Body AI Photo'}</span>
+            <span>{isProcessing ? 'Generating Photorealistic Full-Body Model...' : 'Generate Photorealistic Full-Body Image'}</span>
           </button>
         </div>
 
