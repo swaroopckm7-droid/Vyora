@@ -1,5 +1,5 @@
 export const sampleProducts = [
-  // 5 NEW MEN'S SHIRTS (₹799 Offer Price, ₹999 Original Price, 20% OFF)
+  // 9 LUXURY MEN'S SHIRTS (₹799 Offer Price, ₹999 Original Price, 20% OFF)
   {
     _id: "shirt-new-1",
     name: "Blue Water-Tie-Dye Silk Satin Shirt",
@@ -134,6 +134,114 @@ export const sampleProducts = [
     careInstructions: "Machine wash cold delicate.",
     inStock: true,
     stockCount: 60
+  },
+  {
+    _id: "shirt-new-6",
+    name: "Olive Palm Leaf Botanical Satin Shirt",
+    slug: "olive-palm-leaf-botanical-satin-shirt",
+    description: "Tropical luxury resort shirt featuring detailed olive green monstera & palm leaf illustrations on an ivory satin base.",
+    price: 799,
+    originalPrice: 999,
+    discount: 20,
+    rating: 5.0,
+    reviewsCount: 165,
+    category: "Shirts",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: [
+      { name: "Olive Palm", hex: "#4A5D3E" },
+      { name: "Ivory Cream", hex: "#F3EAD8" }
+    ],
+    image: "/shirt-6.png",
+    images: ["/shirt-6.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "Shirts",
+    fabric: "100% Micro-Luster Satin Cotton",
+    careInstructions: "Delicate cycle wash, warm iron.",
+    inStock: true,
+    stockCount: 45
+  },
+  {
+    _id: "shirt-new-7",
+    name: "Gold Brushstroke Obsidian Satin Shirt",
+    slug: "gold-brushstroke-obsidian-satin-shirt",
+    description: "High-fashion black satin shirt featuring metallic gold artistic brushstroke waves and mother-of-pearl buttons.",
+    price: 799,
+    originalPrice: 999,
+    discount: 20,
+    rating: 4.9,
+    reviewsCount: 132,
+    category: "Shirts",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [
+      { name: "Obsidian Gold Brush", hex: "#D4AF37" },
+      { name: "Jet Black", hex: "#000000" }
+    ],
+    image: "/shirt-7.png",
+    images: ["/shirt-7.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "Shirts",
+    fabric: "100% Premium Satin Silk Cotton",
+    careInstructions: "Hand wash cold inside out.",
+    inStock: true,
+    stockCount: 38
+  },
+  {
+    _id: "shirt-new-8",
+    name: "Pastel Watercolor Patchwork Silk Shirt",
+    slug: "pastel-watercolor-patchwork-silk-shirt",
+    description: "Avant-garde resort shirt featuring soft pastel pink, teal blue, and cream watercolor block prints.",
+    price: 799,
+    originalPrice: 999,
+    discount: 20,
+    rating: 4.8,
+    reviewsCount: 97,
+    category: "Shirts",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: [
+      { name: "Pastel Watercolor", hex: "#D8C5D0" },
+      { name: "Teal Cream", hex: "#8DA79F" }
+    ],
+    image: "/shirt-8.png",
+    images: ["/shirt-8.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "Shirts",
+    fabric: "100% Breathable Silk Viscose",
+    careInstructions: "Delicate dry clean or hand wash cold.",
+    inStock: true,
+    stockCount: 50
+  },
+  {
+    _id: "shirt-new-9",
+    name: "Vintage Botanical Line Illustration Satin Shirt",
+    slug: "vintage-botanical-line-illustration-satin-shirt",
+    description: "Elegant off-white satin shirt adorned with detailed black vintage leaf & floral etching artwork.",
+    price: 799,
+    originalPrice: 999,
+    discount: 20,
+    rating: 5.0,
+    reviewsCount: 178,
+    category: "Shirts",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [
+      { name: "Botanical Etching", hex: "#2B2B2B" },
+      { name: "Off-White", hex: "#F5F5F0" }
+    ],
+    image: "/shirt-9.png",
+    images: ["/shirt-9.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "Shirts",
+    fabric: "100% Organic Silk Touch Satin Cotton",
+    careInstructions: "Machine wash cold inside out.",
+    inStock: true,
+    stockCount: 42
   },
 
   // 5 MEN'S T-SHIRTS (₹599 Offer Price, ₹799 Original Price, 25% OFF)
