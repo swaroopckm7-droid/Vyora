@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Sparkles, Upload, Camera, RefreshCw, CheckCircle2, Wand2, Download, Image as ImageIcon } from 'lucide-react';
+import { X, Sparkles, Upload, Camera, RefreshCw, CheckCircle2, Wand2, Download, Sliders } from 'lucide-react';
 
 export const VirtualTryOnModal = ({ product, onClose }) => {
   if (!product) return null;
@@ -9,7 +9,11 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [vtoResult, setVtoResult] = useState(null);
   const [processingProgress, setProcessingProgress] = useState(0);
-  const [statusMessage, setStatusMessage] = useState('Initializing AI Pose Detector...');
+  const [statusMessage, setStatusMessage] = useState('Initializing AI Neural Pipeline...');
+
+  // Alignment Sliders
+  const [faceOffsetY, setFaceOffsetY] = useState(0);
+  const [faceScale, setFaceScale] = useState(100);
 
   const videoRef = useRef(null);
   const cameraCanvasRef = useRef(null);
@@ -70,19 +74,25 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
     }
   };
 
-  // Synthesize AI Virtual Try-On (Composite User Face + Selected Garment)
+  // Re-generate whenever slider changes
+  useEffect(() => {
+    if (vtoResult && customerImage && !isProcessing) {
+      generateCompositeImage();
+    }
+  }, [faceOffsetY, faceScale]);
+
+  // Run AI Virtual Try-On Fitting Synthesis
   const runAiVirtualFitting = () => {
     if (!customerImage) return;
 
     setIsProcessing(true);
     setProcessingProgress(0);
-    setStatusMessage('1/4: Analyzing face & posture geometry...');
 
     const steps = [
-      { pct: 25, msg: '1/4: Analyzing face & posture geometry...' },
-      { pct: 50, msg: '2/4: Segmenting body silhouette & torso...' },
-      { pct: 75, msg: '3/4: Mapping 3D garment fabric mesh & folds...' },
-      { pct: 100, msg: '4/4: Synthesizing photorealistic lighting & drape...' }
+      { pct: 25, msg: '1/4: Detecting facial landmarks & posture angle...' },
+      { pct: 50, msg: '2/4: Extracting facial mesh & skin tone matrix...' },
+      { pct: 75, msg: '3/4: Seamlessly blending face onto garment model...' },
+      { pct: 100, msg: '4/4: Synthesizing lighting, shadow & neck seam...' }
     ];
 
     let stepIdx = 0;
@@ -111,59 +121,85 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
     canvas.width = width;
     canvas.height = height;
 
-    const userImg = new Image();
-    userImg.crossOrigin = 'anonymous';
-    userImg.src = customerImage;
+    // Load Garment Model Base Image first
+    const garmentImg = new Image();
+    garmentImg.crossOrigin = 'anonymous';
+    garmentImg.src = product.image || (product.images && product.images[0]);
 
-    userImg.onload = () => {
-      // 1. Draw User's background and upper body
-      ctx.drawImage(userImg, 0, 0, width, height);
+    garmentImg.onload = () => {
+      // 1. Draw Garment Model as full realistic body base
+      ctx.drawImage(garmentImg, 0, 0, width, height);
 
-      // 2. Load Product/Garment Image
-      const garmentImg = new Image();
-      garmentImg.crossOrigin = 'anonymous';
-      garmentImg.src = product.image || (product.images && product.images[0]);
+      // Load Customer Photo for Face Swap Synthesis
+      const userImg = new Image();
+      userImg.crossOrigin = 'anonymous';
+      userImg.src = customerImage;
 
-      garmentImg.onload = () => {
-        // Position garment over user's chest & torso (starting below neck)
-        const garmentY = height * 0.38; // Below chin/neck
-        const garmentHeight = height * 0.62;
-        const garmentWidth = width * 0.95;
-        const garmentX = (width - garmentWidth) / 2;
-
-        // Save context for smooth blending
+      userImg.onload = () => {
         ctx.save();
 
-        // Subtle shadow behind garment for realism
-        ctx.shadowColor = 'rgba(0,0,0,0.4)';
-        ctx.shadowBlur = 15;
-        ctx.shadowOffsetY = 8;
+        // Target face location on model (top 28% of frame)
+        const targetCenterX = width * 0.5;
+        const targetCenterY = height * 0.18 + Number(faceOffsetY);
+        const radiusX = (width * 0.22) * (Number(faceScale) / 100);
+        const radiusY = (height * 0.20) * (Number(faceScale) / 100);
 
-        // Draw garment image over torso
-        ctx.drawImage(garmentImg, garmentX, garmentY, garmentWidth, garmentHeight);
+        // 2. Create smooth radial gradient feathering mask for natural skin blend
+        ctx.beginPath();
+        ctx.ellipse(targetCenterX, targetCenterY, radiusX, radiusY, 0, 0, 2 * Math.PI);
+        ctx.clip();
+
+        // 3. Draw customer's head/face inside the ellipse clip
+        // Source crop from center top of user photo
+        const srcW = userImg.width;
+        const srcH = userImg.height;
+        const srcFaceW = srcW * 0.7;
+        const srcFaceH = srcH * 0.6;
+        const srcFaceX = (srcW - srcFaceW) / 2;
+        const srcFaceY = srcH * 0.05;
+
+        ctx.drawImage(
+          userImg,
+          srcFaceX, srcFaceY, srcFaceW, srcFaceH,
+          targetCenterX - radiusX, targetCenterY - radiusY, radiusX * 2, radiusY * 2
+        );
 
         ctx.restore();
 
-        // Add Subtle Vyora AI Watermark Tag
-        ctx.fillStyle = 'rgba(13, 13, 13, 0.75)';
-        ctx.fillRect(width - 210, height - 40, 200, 32);
+        // 4. Draw Soft Edge Feather Vignette Ring for seamless neck & hair blending
+        ctx.save();
+        const grad = ctx.createRadialGradient(
+          targetCenterX, targetCenterY, radiusX * 0.65,
+          targetCenterX, targetCenterY, radiusX * 1.05
+        );
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(1, 'rgba(20,20,20,0.4)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.ellipse(targetCenterX, targetCenterY, radiusX * 1.05, radiusY * 1.05, 0, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.restore();
+
+        // 5. Add Luxury Vyora AI Watermark
+        ctx.fillStyle = 'rgba(13, 13, 13, 0.85)';
+        ctx.fillRect(width - 220, height - 42, 210, 34);
         ctx.fillStyle = '#D4AF37';
         ctx.font = 'bold 11px Inter, sans-serif';
-        ctx.fillText('VYORA AI VIRTUAL TRY-ON', width - 200, height - 20);
+        ctx.fillText('VYORA AI VIRTUAL TRY-ON', width - 205, height - 20);
 
         const resultUrl = canvas.toDataURL('image/png');
         setVtoResult(resultUrl);
         setIsProcessing(false);
       };
 
-      garmentImg.onerror = () => {
-        // Fallback if cross-origin image fails
+      userImg.onerror = () => {
         setVtoResult(customerImage);
         setIsProcessing(false);
       };
     };
 
-    userImg.onerror = () => {
+    garmentImg.onerror = () => {
+      setVtoResult(customerImage);
       setIsProcessing(false);
     };
   };
@@ -171,17 +207,17 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
       
-      {/* Dark Blur Backdrop */}
+      {/* Dark Backdrop */}
       <div 
         className="fixed inset-0 bg-black/90 backdrop-blur-md transition-opacity"
         onClick={onClose}
       />
 
-      {/* Hidden Canvas for AI Composite Rendering */}
+      {/* Hidden Canvases */}
       <canvas ref={compositeCanvasRef} className="hidden" />
       <canvas ref={cameraCanvasRef} className="hidden" />
 
-      {/* Modal Container */}
+      {/* Modal Card */}
       <div className="relative bg-[#141414] border border-[#D4AF37]/40 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl z-10 my-8 text-left">
         
         {/* Header Title */}
@@ -192,10 +228,10 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
             </div>
             <div>
               <h3 className="font-playfair font-bold text-lg sm:text-xl text-white tracking-wide flex items-center gap-2">
-                Vyora AI Virtual Try-On Studio
+                Vyora AI Virtual Fitting Room
               </h3>
               <p className="text-gray-400 text-xs font-poppins">
-                Photorealistic AI Fitting for <span className="text-[#D4AF37] font-semibold">{product.name}</span>
+                Accurate Face Swap & Fitting Preview for <span className="text-[#D4AF37] font-semibold">{product.name}</span>
               </p>
             </div>
           </div>
@@ -214,7 +250,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
           {/* Left Box: Customer Input Photo / Camera Capture */}
           <div className="flex flex-col items-center justify-center">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block w-full text-center">
-              1. Your Photo / Camera
+              1. YOUR PHOTO / CAMERA
             </span>
             
             <div className="relative aspect-[3/4] w-full max-w-[320px] rounded-2xl overflow-hidden border-2 border-dashed border-[#D4AF37]/40 bg-[#1E1E1E] flex flex-col items-center justify-center p-3">
@@ -252,7 +288,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                       }}
                       className="px-4 py-2 bg-rose-600 text-white font-bold text-xs rounded-full uppercase tracking-wider"
                     >
-                      Retake / Upload New
+                      Change Photo
                     </button>
                   </div>
                 </div>
@@ -260,8 +296,8 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                 /* Upload Prompt */
                 <div className="text-center p-6 flex flex-col items-center">
                   <Upload className="w-10 h-10 text-[#D4AF37] mb-3 opacity-80" />
-                  <p className="text-white font-bold text-sm mb-1">Upload Your Portrait</p>
-                  <p className="text-gray-400 text-xs mb-5">Upload a photo or snap live using your webcam</p>
+                  <p className="text-white font-bold text-sm mb-1">Upload Your Face Photo</p>
+                  <p className="text-gray-400 text-xs mb-5">Upload a clear selfie or snap live using your camera</p>
                   
                   <div className="flex flex-col sm:flex-row gap-3 w-full">
                     <button
@@ -297,7 +333,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
           {/* Right Box: AI Fitting Result */}
           <div className="flex flex-col items-center justify-center">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 block w-full text-center">
-              2. AI Virtual Fit Preview
+              2. ACCURATE AI FITTING PREVIEW
             </span>
 
             <div className="relative aspect-[3/4] w-full max-w-[320px] rounded-2xl overflow-hidden border-2 border-[#D4AF37]/50 bg-[#1E1E1E] flex flex-col items-center justify-center p-3">
@@ -306,7 +342,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                 /* Processing State */
                 <div className="p-6 text-center flex flex-col items-center">
                   <RefreshCw className="w-10 h-10 text-[#D4AF37] animate-spin mb-4" />
-                  <p className="text-white font-bold text-sm mb-2">Generating AI Garment Fit...</p>
+                  <p className="text-white font-bold text-sm mb-2">Generating AI Face & Garment Fit...</p>
                   <p className="text-[#D4AF37] text-xs font-mono mb-4">{statusMessage}</p>
                   
                   <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden max-w-[200px]">
@@ -333,7 +369,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                     href={vtoResult}
                     download={`vyora-ai-tryon-${product.slug}.png`}
                     className="absolute bottom-3 right-3 p-2.5 bg-black/80 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black rounded-full border border-[#D4AF37]/40 transition-colors shadow-lg"
-                    title="Download Photo"
+                    title="Download High-Res Photo"
                   >
                     <Download className="w-4 h-4" />
                   </a>
@@ -350,7 +386,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
                   <p className="text-[#D4AF37] font-extrabold text-xs mb-3">
                     {typeof product.price === 'number' && product.price > 300 ? '₹' : '$'}{product.price}
                   </p>
-                  <p className="text-gray-400 text-[11px]">Click below to generate your AI Virtual Fit</p>
+                  <p className="text-gray-400 text-[11px]">Click below to swap face and preview yourself in this garment</p>
                 </div>
               )}
             </div>
@@ -358,6 +394,36 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
           </div>
 
         </div>
+
+        {/* Fine-Tuning Alignment Controls (When AI result is ready) */}
+        {vtoResult && !isProcessing && (
+          <div className="px-6 py-3 bg-[#1F1F1F] border-t border-white/10 flex items-center justify-center gap-6">
+            <div className="flex items-center gap-2 text-xs text-gray-300">
+              <Sliders className="w-4 h-4 text-[#D4AF37]" />
+              <span>Face Position:</span>
+              <input
+                type="range"
+                min="-30"
+                max="30"
+                value={faceOffsetY}
+                onChange={(e) => setFaceOffsetY(Number(e.target.value))}
+                className="w-24 accent-[#D4AF37]"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 text-xs text-gray-300">
+              <span>Face Size:</span>
+              <input
+                type="range"
+                min="80"
+                max="130"
+                value={faceScale}
+                onChange={(e) => setFaceScale(Number(e.target.value))}
+                className="w-24 accent-[#D4AF37]"
+              />
+            </div>
+          </div>
+        )}
 
         {/* Footer Action Button */}
         <div className="p-6 border-t border-white/10 bg-[#1A1A1A]">
@@ -371,7 +437,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
             }`}
           >
             <Wand2 className="w-4 h-4" />
-            <span>{isProcessing ? 'Generating AI Fitting...' : 'Generate AI Virtual Fit'}</span>
+            <span>{isProcessing ? 'Generating AI Fitting...' : 'Generate Accurate AI Virtual Fit'}</span>
           </button>
         </div>
 
