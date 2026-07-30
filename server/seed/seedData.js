@@ -244,7 +244,88 @@ export const sampleProducts = [
     stockCount: 42
   },
 
-  // 5 MEN'S T-SHIRTS (₹599 Offer Price, ₹799 Original Price, 25% OFF)
+  // 8 MEN'S T-SHIRTS (₹599 Offer Price, ₹799 Original Price, 25% OFF)
+  {
+    _id: "tshirt-6",
+    name: "Sky Blue Japanese Kanji Typography Wash Tee",
+    slug: "sky-blue-japanese-kanji-typography-wash-tee",
+    description: "Acid-washed sky blue heavy Supima cotton tee featuring minimalist front black Japanese typography artwork.",
+    price: 599,
+    originalPrice: 799,
+    discount: 25,
+    rating: 5.0,
+    reviewsCount: 184,
+    category: "T-Shirts",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: [
+      { name: "Acid Sky Blue", hex: "#6B9AC4" },
+      { name: "Onyx Kanji", hex: "#111111" }
+    ],
+    image: "/tshirt-6.png",
+    images: ["/tshirt-6.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "T-Shirts",
+    fabric: "100% Acid-Washed Supima Cotton (280 GSM)",
+    careInstructions: "Machine wash cold inside out.",
+    inStock: true,
+    stockCount: 70
+  },
+  {
+    _id: "tshirt-7",
+    name: "Onyx Black Ribbed Quarter-Zip Ring Polo Tee",
+    slug: "onyx-black-ribbed-quarter-zip-ring-polo-tee",
+    description: "Sleek jet black ribbed polo tee featuring a polished silver ring zipper pull and tailored drop shoulder fit.",
+    price: 599,
+    originalPrice: 799,
+    discount: 25,
+    rating: 4.9,
+    reviewsCount: 145,
+    category: "T-Shirts",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL"],
+    colors: [
+      { name: "Onyx Black", hex: "#0A0A0A" },
+      { name: "Sand Beige Accent", hex: "#D4C5B9" }
+    ],
+    image: "/tshirt-7.png",
+    images: ["/tshirt-7.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "T-Shirts",
+    fabric: "100% Ribbed Premium Supima Cotton",
+    careInstructions: "Delicate cycle wash cold.",
+    inStock: true,
+    stockCount: 55
+  },
+  {
+    _id: "tshirt-8",
+    name: "Lavender Purple Mythical Dragon Back Graphic Tee",
+    slug: "lavender-purple-mythical-dragon-back-graphic-tee",
+    description: "Streetwear boxy tee in pastel lavender featuring a white high-density mythical dragon back illustration.",
+    price: 599,
+    originalPrice: 799,
+    discount: 25,
+    rating: 4.9,
+    reviewsCount: 160,
+    category: "T-Shirts",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: [
+      { name: "Pastel Lavender", hex: "#9B8AB8" },
+      { name: "White Dragon Print", hex: "#FFFFFF" }
+    ],
+    image: "/tshirt-8.png",
+    images: ["/tshirt-8.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "T-Shirts",
+    fabric: "100% Heavy Organic Cotton (260 GSM)",
+    careInstructions: "Machine wash cold inside out.",
+    inStock: true,
+    stockCount: 65
+  },
   {
     _id: "tshirt-1",
     name: "Beige Embossed Medallion Oversized T-Shirt",
