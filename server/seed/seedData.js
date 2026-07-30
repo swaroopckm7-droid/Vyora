@@ -1,4 +1,87 @@
 export const sampleProducts = [
+  // 5 LUXURY MEN'S HOODIES (₹699 Offer Price, ₹899 Original Price, 22% OFF)
+  {
+    _id: "hoodie-new-1",
+    name: "Oatmeal Cream Minimalist Vyora Chest Embroidery Hoodie",
+    slug: "oatmeal-cream-minimalist-vyora-chest-embroidery-hoodie",
+    description: "Ultra-soft 480GSM French terry cotton hoodie in oatmeal cream featuring high-density minimalist Vyora chest embroidery and kangaroo pocket.",
+    price: 699,
+    originalPrice: 899,
+    discount: 22,
+    rating: 5.0,
+    reviewsCount: 185,
+    category: "Hoodies",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: [
+      { name: "Oatmeal Cream", hex: "#F3EAD8" },
+      { name: "Onyx Black", hex: "#0A0A0A" }
+    ],
+    image: "/hoodie-1.png",
+    images: ["/hoodie-1.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "Hoodies",
+    fabric: "100% Heavyweight French Terry Cotton (480 GSM)",
+    careInstructions: "Machine wash cold inside out, dry flat in shade.",
+    inStock: true,
+    stockCount: 50
+  },
+  {
+    _id: "hoodie-new-2",
+    name: "Espresso Brown Gold V Monogram Emblem Hoodie",
+    slug: "espresso-brown-gold-v-monogram-emblem-hoodie",
+    description: "Deep espresso brown luxury hoodie decorated with a metallic gold geometric V crest emblem on the left chest and gold-tipped drawstrings.",
+    price: 699,
+    originalPrice: 899,
+    discount: 22,
+    rating: 4.9,
+    reviewsCount: 142,
+    category: "Hoodies",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: [
+      { name: "Espresso Brown", hex: "#3B271E" },
+      { name: "Gold Accent", hex: "#D4AF37" }
+    ],
+    image: "/hoodie-2.png",
+    images: ["/hoodie-2.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "Hoodies",
+    fabric: "480GSM Heavy Organic Fleece Cotton",
+    careInstructions: "Machine wash cold inside out.",
+    inStock: true,
+    stockCount: 45
+  },
+  {
+    _id: "hoodie-new-3",
+    name: "Olive Forest Gold V Back Monogram Heavyweight Hoodie",
+    slug: "olive-forest-gold-v-back-monogram-heavyweight-hoodie",
+    description: "Statement forest green heavyweight hoodie showcasing a massive metallic gold V logo back print and gold Vyora hood neck tag.",
+    price: 699,
+    originalPrice: 899,
+    discount: 22,
+    rating: 5.0,
+    reviewsCount: 198,
+    category: "Hoodies",
+    gender: "Men",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    colors: [
+      { name: "Forest Olive", hex: "#2E3B2B" },
+      { name: "Metallic Gold", hex: "#D4AF37" }
+    ],
+    image: "/hoodie-3.png",
+    images: ["/hoodie-3.png"],
+    isNewArrival: true,
+    isTrending: true,
+    collectionType: "Hoodies",
+    fabric: "100% Heavy Combed French Terry (480 GSM)",
+    careInstructions: "Machine wash cold inside out.",
+    inStock: true,
+    stockCount: 60
+  },
+
   // 9 LUXURY MEN'S SHIRTS (₹799 Offer Price, ₹999 Original Price, 20% OFF)
   {
     _id: "shirt-new-1",
@@ -462,34 +545,7 @@ export const sampleProducts = [
     stockCount: 60
   },
 
-  // HOODIES & TRACK PANTS
-  {
-    _id: "hoodie-1",
-    name: "Aura Gold Heavyweight Hoodie",
-    slug: "aura-gold-heavyweight-hoodie",
-    description: "Ultra-heavyweight 480GSM French terry cotton hoodie featuring embroidered metallic gold Vyora monogram.",
-    price: 999,
-    originalPrice: 1299,
-    discount: 23,
-    rating: 4.9,
-    reviewsCount: 128,
-    category: "Hoodies",
-    gender: "Men",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: [
-      { name: "Onyx Black", hex: "#0A0A0A" },
-      { name: "Charcoal Gray", hex: "#2E2E2E" }
-    ],
-    image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1000&q=80",
-    images: ["https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=1000&q=80"],
-    isNewArrival: true,
-    isTrending: true,
-    collectionType: "Hoodies",
-    fabric: "100% Heavyweight French Terry Cotton (480 GSM)",
-    careInstructions: "Machine wash cold inside out.",
-    inStock: true,
-    stockCount: 45
-  },
+  // TRACK PANTS
   {
     _id: "trackpants-1",
     name: "Vanguard Heavy French Terry Track Pants",
