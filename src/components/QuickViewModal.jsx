@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { X, Star, Heart, ShoppingBag, Check, ShieldCheck, Truck, ZoomIn } from 'lucide-react';
+import { X, Star, Heart, ShoppingBag, Check, ShieldCheck, Truck, ZoomIn, Wand2 } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
-export const QuickViewModal = ({ product, onClose }) => {
+export const QuickViewModal = ({ product, onClose, onOpenVirtualTryOn }) => {
   if (!product) return null;
 
   const { addToCart } = useCart();
@@ -22,6 +22,8 @@ export const QuickViewModal = ({ product, onClose }) => {
   const productId = product._id || product.id;
   const isWishlisted = isInWishlist(productId);
 
+  const currencySymbol = typeof product.price === 'number' && product.price > 300 ? '₹' : '$';
+
   const handleAddToCart = () => {
     addToCart(product, selectedSize, selectedColor, quantity);
     onClose();
@@ -37,12 +39,12 @@ export const QuickViewModal = ({ product, onClose }) => {
       />
 
       {/* Modal Container */}
-      <div className="relative bg-vyora-card border border-gold/30 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl z-10 my-8">
+      <div className="relative bg-[#141414] border border-[#D4AF37]/30 rounded-3xl max-w-4xl w-full overflow-hidden shadow-2xl z-10 my-8">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/70 hover:bg-gold text-white hover:text-black flex items-center justify-center transition-colors border border-white/10"
+          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/70 hover:bg-[#D4AF37] text-white hover:text-black flex items-center justify-center transition-colors border border-white/10"
         >
           <X className="w-5 h-5" />
         </button>
@@ -50,7 +52,7 @@ export const QuickViewModal = ({ product, onClose }) => {
         <div className="grid grid-cols-1 md:grid-cols-2">
           
           {/* Left Column: Image Zoom & Gallery */}
-          <div className="p-6 bg-charcoal-dark flex flex-col justify-between">
+          <div className="p-6 bg-[#0F0F0F] flex flex-col justify-between">
             
             {/* Main Active Image with Zoom */}
             <div 
@@ -66,7 +68,19 @@ export const QuickViewModal = ({ product, onClose }) => {
                 }`}
               />
 
-              <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-gold text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-semibold pointer-events-none">
+              {/* AI Virtual Try-On Badge Button on Product Image */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenVirtualTryOn && onOpenVirtualTryOn(product);
+                }}
+                className="absolute top-3 left-3 bg-[#D4AF37] hover:bg-amber-300 text-black font-extrabold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-gold-glow transition-transform hover:scale-105 uppercase tracking-wider"
+              >
+                <Wand2 className="w-3.5 h-3.5" />
+                <span>Try On Me (AI)</span>
+              </button>
+
+              <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-[#D4AF37] text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-semibold pointer-events-none">
                 <ZoomIn className="w-3.5 h-3.5" />
                 <span>Hover to Zoom</span>
               </div>
@@ -80,7 +94,7 @@ export const QuickViewModal = ({ product, onClose }) => {
                     key={index}
                     onClick={() => setActiveImageIndex(index)}
                     className={`w-16 h-20 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${
-                      activeImageIndex === index ? 'border-gold shadow-gold-glow' : 'border-transparent opacity-60 hover:opacity-100'
+                      activeImageIndex === index ? 'border-[#D4AF37] shadow-gold-glow' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
                     <img src={img} alt="" className="w-full h-full object-cover" />
@@ -97,7 +111,7 @@ export const QuickViewModal = ({ product, onClose }) => {
             <div>
               {/* Category Pill & Rating */}
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gold font-bold text-xs uppercase tracking-widest">
+                <span className="text-[#D4AF37] font-bold text-xs uppercase tracking-widest">
                   {product.category}
                 </span>
                 <div className="flex items-center gap-1 text-amber-400 text-sm font-bold">
@@ -114,16 +128,16 @@ export const QuickViewModal = ({ product, onClose }) => {
 
               {/* Price & Discount */}
               <div className="flex items-baseline gap-3 mb-5">
-                <span className="font-poppins font-black text-2xl text-gold">
-                  ${product.price}
+                <span className="font-poppins font-black text-2xl text-[#D4AF37]">
+                  {currencySymbol}{product.price}
                 </span>
                 {product.originalPrice > product.price && (
                   <span className="text-sm text-gray-400 line-through">
-                    ${product.originalPrice}
+                    {currencySymbol}{product.originalPrice}
                   </span>
                 )}
                 {product.discount > 0 && (
-                  <span className="bg-gold/20 text-gold text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-gold/40">
+                  <span className="bg-[#D4AF37]/20 text-[#D4AF37] text-xs font-extrabold px-2.5 py-0.5 rounded-full border border-[#D4AF37]/40">
                     Save {product.discount}%
                   </span>
                 )}
@@ -134,11 +148,33 @@ export const QuickViewModal = ({ product, onClose }) => {
                 {product.description}
               </p>
 
+              {/* Individual AI Virtual Try-On Banner */}
+              <div className="mb-6 bg-[#1F1F1F] border border-[#D4AF37]/40 p-4 rounded-2xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center">
+                    <Wand2 className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-white text-xs font-bold">See How You Look In This Dress</p>
+                    <p className="text-gray-400 text-[11px]">Upload photo or snap live camera preview</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    onOpenVirtualTryOn && onOpenVirtualTryOn(product);
+                  }}
+                  className="px-4 py-2 bg-[#D4AF37] text-black font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-gold-glow hover:scale-105 transition-transform"
+                >
+                  AI Try-On
+                </button>
+              </div>
+
               {/* Color Swatches */}
               {product.colors && product.colors.length > 0 && (
                 <div className="mb-6">
                   <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
-                    Color: <span className="text-gold">{selectedColor}</span>
+                    Color: <span className="text-[#D4AF37]">{selectedColor}</span>
                   </label>
                   <div className="flex items-center gap-3">
                     {product.colors.map((c, i) => (
@@ -146,7 +182,7 @@ export const QuickViewModal = ({ product, onClose }) => {
                         key={i}
                         onClick={() => setSelectedColor(c.name)}
                         className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${
-                          selectedColor === c.name ? 'border-gold scale-110 shadow-gold-glow' : 'border-transparent opacity-80 hover:opacity-100'
+                          selectedColor === c.name ? 'border-[#D4AF37] scale-110 shadow-gold-glow' : 'border-transparent opacity-80 hover:opacity-100'
                         }`}
                         style={{ backgroundColor: c.hex }}
                         title={c.name}
@@ -165,7 +201,7 @@ export const QuickViewModal = ({ product, onClose }) => {
                 <div className="mb-6">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-gray-300">
-                      Size: <span className="text-gold">{selectedSize}</span>
+                      Size: <span className="text-[#D4AF37]">{selectedSize}</span>
                     </label>
                     <span className="text-[11px] text-gray-400 underline cursor-pointer">Size Guide</span>
                   </div>
@@ -176,8 +212,8 @@ export const QuickViewModal = ({ product, onClose }) => {
                         onClick={() => setSelectedSize(s)}
                         className={`px-3.5 py-2 rounded-xl text-xs font-bold uppercase transition-all ${
                           selectedSize === s
-                            ? 'bg-gold text-black shadow-gold-glow border-gold'
-                            : 'bg-charcoal text-gray-300 border border-white/10 hover:border-gold/40'
+                            ? 'bg-[#D4AF37] text-black shadow-gold-glow border-[#D4AF37]'
+                            : 'bg-[#1F1F1F] text-gray-300 border border-white/10 hover:border-[#D4AF37]/40'
                         }`}
                       >
                         {s}
@@ -187,38 +223,16 @@ export const QuickViewModal = ({ product, onClose }) => {
                 </div>
               )}
 
-              {/* Quantity Counter */}
-              <div className="mb-6">
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
-                  Quantity
-                </label>
-                <div className="inline-flex items-center bg-charcoal rounded-xl border border-white/10 p-1">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-8 h-8 rounded-lg bg-black/40 text-white font-bold hover:bg-gold hover:text-black transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 font-bold text-sm text-white">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-8 h-8 rounded-lg bg-black/40 text-white font-bold hover:bg-gold hover:text-black transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
             </div>
 
             {/* CTA Buttons */}
             <div className="pt-4 border-t border-white/10 flex items-center gap-3">
               <button
                 onClick={handleAddToCart}
-                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-gold via-amber-400 to-gold-dark text-black font-extrabold text-sm py-3.5 rounded-full shadow-gold-glow hover:scale-[1.02] transition-transform uppercase tracking-wider"
+                className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#D4AF37] via-amber-400 to-[#D4AF37] text-black font-extrabold text-sm py-3.5 rounded-full shadow-gold-glow hover:scale-[1.02] transition-transform uppercase tracking-wider"
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>Add to Cart • ${(product.price * quantity).toFixed(2)}</span>
+                <span>Add to Cart • {currencySymbol}{(product.price * quantity).toFixed(0)}</span>
               </button>
 
               <button
@@ -226,7 +240,7 @@ export const QuickViewModal = ({ product, onClose }) => {
                 className={`p-3.5 rounded-full border transition-all ${
                   isWishlisted
                     ? 'bg-rose-600 border-rose-500 text-white'
-                    : 'bg-charcoal border-white/10 text-gray-300 hover:text-gold hover:border-gold'
+                    : 'bg-[#1F1F1F] border-white/10 text-gray-300 hover:text-[#D4AF37] hover:border-[#D4AF37]'
                 }`}
                 title="Wishlist"
               >
