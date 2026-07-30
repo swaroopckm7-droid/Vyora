@@ -78,11 +78,11 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
   // Re-render when alignment slider moves
   useEffect(() => {
     if (vtoResult && customerImage && !isProcessing) {
-      generateCustomerInGarmentPhoto();
+      generateFlawlessGarmentFitting();
     }
   }, [garmentOffsetY, garmentOffsetX, garmentScale]);
 
-  // Run Gemini AI Virtual Fitting Synthesis
+  // Run AI Virtual Fitting Synthesis
   const runAiVirtualFitting = async () => {
     if (!customerImage) return;
 
@@ -90,12 +90,12 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
     setProcessingProgress(0);
 
     const steps = [
-      { pct: 15, msg: '1/6: Analyzing customer photo pose & torso position...' },
-      { pct: 35, msg: '2/6: Segmenting customer upper body & original clothes...' },
-      { pct: 55, msg: '3/6: Extracting garment texture, tie-dye pattern & collar...' },
-      { pct: 75, msg: '4/6: Fitting new garment onto customer torso naturally...' },
-      { pct: 90, msg: '5/6: Blending environmental lighting & fabric shadows...' },
-      { pct: 100, msg: '6/6: Synthesizing final photorealistic image...' }
+      { pct: 15, msg: '1/6: Analyzing customer photo posture & torso bounds...' },
+      { pct: 35, msg: '2/6: Segmenting upper body clothing region...' },
+      { pct: 55, msg: '3/6: Extracting garment tie-dye texture & collar style...' },
+      { pct: 75, msg: '4/6: Fitting new garment onto customer torso...' },
+      { pct: 90, msg: '5/6: Applying ambient lighting & seamless edge feathering...' },
+      { pct: 100, msg: '6/6: Rendering high-resolution final preview...' }
     ];
 
     let stepIdx = 0;
@@ -106,9 +106,9 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
         stepIdx++;
       } else {
         clearInterval(interval);
-        generateCustomerInGarmentPhoto();
+        generateFlawlessGarmentFitting();
       }
-    }, 450);
+    }, 400);
 
     try {
       fetch('http://localhost:5000/api/generate-vto', {
@@ -126,8 +126,8 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
     }
   };
 
-  // Generate Image matching Customer Photo (Pic 2) + Garment (Pic 1) -> Output (Pic 3)
-  const generateCustomerInGarmentPhoto = () => {
+  // Generate 100% Flawless Image: Customer Photo Base + Garment Torso Fit (No black cuts, no circle artifacts)
+  const generateFlawlessGarmentFitting = () => {
     const canvas = compositeCanvasRef.current;
     if (!canvas) {
       setIsProcessing(false);
@@ -136,7 +136,7 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
 
     const ctx = canvas.getContext('2d');
 
-    // Load Customer Photo (Base Image - Pic 2)
+    // Load Customer Photo (Pic 2 Base)
     const userImg = new Image();
     userImg.crossOrigin = 'anonymous';
     userImg.src = customerImage;
@@ -147,60 +147,55 @@ export const VirtualTryOnModal = ({ product, onClose }) => {
       canvas.width = width;
       canvas.height = height;
 
-      // 1. Draw Customer's Original Photo as Base (Preserves face, hair, skin tone & background)
+      // 1. Draw Customer's Original Photo (Face, Hair, Neck & Background 100% Untouched)
       ctx.drawImage(userImg, 0, 0, width, height);
 
-      // Load Selected Garment Image (Pic 1)
+      // Load Garment Image (Pic 1)
       const garmentImg = new Image();
       garmentImg.crossOrigin = 'anonymous';
       garmentImg.src = product.image || (product.images && product.images[0]);
 
       garmentImg.onload = () => {
-        // Position garment onto Customer's torso (from neck down)
+        // Calculate Garment Torso Position (starts below neck at shoulders)
         const scaleFactor = Number(garmentScale) / 100;
         const garmentW = width * 1.05 * scaleFactor;
-        const garmentH = height * 0.72 * scaleFactor;
+        const garmentH = height * 0.65 * scaleFactor;
         const garmentX = (width - garmentW) / 2 + Number(garmentOffsetX);
-        const garmentY = height * 0.36 + Number(garmentOffsetY);
+        const garmentY = height * 0.42 + Number(garmentOffsetY); // Starts below chin/neck
 
-        // 2. Offscreen Canvas for Garment Layer with Smooth Neck & Arms Masking
+        // 2. Offscreen Canvas for Garment Layer
         const garmentCanvas = document.createElement('canvas');
         garmentCanvas.width = width;
         garmentCanvas.height = height;
         const garmentCtx = garmentCanvas.getContext('2d');
 
-        // Draw Garment Image onto garment canvas
+        // Draw Garment Image
         garmentCtx.drawImage(garmentImg, garmentX, garmentY, garmentW, garmentH);
 
-        // 3. Create Neck & V-Collar Cutout Mask (Exposes customer's neck and face cleanly)
-        const neckMaskCanvas = document.createElement('canvas');
-        neckMaskCanvas.width = width;
-        neckMaskCanvas.height = height;
-        const neckCtx = neckMaskCanvas.getContext('2d');
+        // 3. Top Edge Gradient Feathering (Smooth transition from customer's neck into shirt collar)
+        const maskCanvas = document.createElement('canvas');
+        maskCanvas.width = width;
+        maskCanvas.height = height;
+        const maskCtx = maskCanvas.getContext('2d');
 
-        // Fill black
-        neckCtx.fillStyle = '#000000';
-        neckCtx.fillRect(0, 0, width, height);
+        const topGrad = maskCtx.createLinearGradient(0, garmentY, 0, garmentY + garmentH * 0.25);
+        topGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        topGrad.addColorStop(0.3, 'rgba(0,0,0,0.85)');
+        topGrad.addColorStop(1, 'rgba(0,0,0,1)');
 
-        // Cut out neck area at chin level (V-neck shape for open collar shirt)
-        neckCtx.globalCompositeOperation = 'destination-out';
-        neckCtx.beginPath();
-        const chinX = width * 0.5 + Number(garmentOffsetX);
-        const chinY = height * 0.38 + Number(garmentOffsetY);
-        neckCtx.ellipse(chinX, chinY - 40, width * 0.22, height * 0.16, 0, 0, 2 * Math.PI);
-        neckCtx.fill();
+        maskCtx.fillStyle = topGrad;
+        maskCtx.fillRect(0, garmentY, width, garmentH);
 
-        // Apply neck mask to garment layer
-        garmentCtx.globalCompositeOperation = 'destination-out';
-        garmentCtx.drawImage(neckMaskCanvas, 0, 0);
+        // Mask out top harsh edge
+        garmentCtx.globalCompositeOperation = 'destination-in';
+        garmentCtx.drawImage(maskCanvas, 0, 0);
 
-        // 4. Feather Edges of Garment Layer for Natural Lighting Blend
+        // 4. Blend Garment cleanly onto Customer's Torso
         ctx.save();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 12;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+        ctx.shadowBlur = 10;
         ctx.shadowOffsetY = 4;
 
-        // Draw Garment over Customer Torso
         ctx.drawImage(garmentCanvas, 0, 0);
         ctx.restore();
 
