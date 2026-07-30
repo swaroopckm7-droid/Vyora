@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { X, Star, Heart, ShoppingBag, Check, ShieldCheck, Truck, ZoomIn, Wand2 } from 'lucide-react';
+import { X, Star, Heart, ShoppingBag, Check, ShieldCheck, Truck, ZoomIn } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
-export const QuickViewModal = ({ product, onClose, onOpenVirtualTryOn }) => {
+export const QuickViewModal = ({ product, onClose }) => {
   if (!product) return null;
 
   const { addToCart } = useCart();
@@ -67,18 +67,6 @@ export const QuickViewModal = ({ product, onClose, onOpenVirtualTryOn }) => {
                   isZoomed ? 'scale-150' : 'scale-100'
                 }`}
               />
-
-              {/* AI Virtual Try-On Badge Button on Product Image */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpenVirtualTryOn && onOpenVirtualTryOn(product);
-                }}
-                className="absolute top-3 left-3 bg-[#D4AF37] hover:bg-amber-300 text-black font-extrabold text-xs px-3.5 py-1.5 rounded-full flex items-center gap-1.5 shadow-gold-glow transition-transform hover:scale-105 uppercase tracking-wider"
-              >
-                <Wand2 className="w-3.5 h-3.5" />
-                <span>Try On Me (AI)</span>
-              </button>
 
               <div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-sm text-[#D4AF37] text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-semibold pointer-events-none">
                 <ZoomIn className="w-3.5 h-3.5" />
@@ -148,28 +136,6 @@ export const QuickViewModal = ({ product, onClose, onOpenVirtualTryOn }) => {
                 {product.description}
               </p>
 
-              {/* Individual AI Virtual Try-On Banner */}
-              <div className="mb-6 bg-[#1F1F1F] border border-[#D4AF37]/40 p-4 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#D4AF37] flex items-center justify-center">
-                    <Wand2 className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-white text-xs font-bold">See How You Look In This Dress</p>
-                    <p className="text-gray-400 text-[11px]">Upload photo or snap live camera preview</p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    onOpenVirtualTryOn && onOpenVirtualTryOn(product);
-                  }}
-                  className="px-4 py-2 bg-[#D4AF37] text-black font-extrabold text-xs uppercase tracking-wider rounded-xl shadow-gold-glow hover:scale-105 transition-transform"
-                >
-                  AI Try-On
-                </button>
-              </div>
-
               {/* Color Swatches */}
               {product.colors && product.colors.length > 0 && (
                 <div className="mb-6">
@@ -222,6 +188,28 @@ export const QuickViewModal = ({ product, onClose, onOpenVirtualTryOn }) => {
                   </div>
                 </div>
               )}
+
+              {/* Quantity Counter */}
+              <div className="mb-6">
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-300 mb-2">
+                  Quantity
+                </label>
+                <div className="inline-flex items-center bg-[#1F1F1F] rounded-xl border border-white/10 p-1">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-8 h-8 rounded-lg bg-black/40 text-white font-bold hover:bg-[#D4AF37] hover:text-black transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="px-4 font-bold text-sm text-white">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-8 h-8 rounded-lg bg-black/40 text-white font-bold hover:bg-[#D4AF37] hover:text-black transition-colors"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
 
             </div>
 

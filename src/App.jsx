@@ -5,7 +5,6 @@ import { Hero } from './components/Hero';
 import { FeaturedCategories } from './components/FeaturedCategories';
 import { ProductGrid } from './components/ProductGrid';
 import { QuickViewModal } from './components/QuickViewModal';
-import { VirtualTryOnModal } from './components/VirtualTryOnModal';
 import { WhyChooseUs } from './components/WhyChooseUs';
 import { Testimonials } from './components/Testimonials';
 import { InstagramGallery } from './components/InstagramGallery';
@@ -79,7 +78,6 @@ function MainApp() {
 
   // Modals & Drawers state
   const [selectedProductForQuickView, setSelectedProductForQuickView] = useState(null);
-  const [selectedProductForVTO, setSelectedProductForVTO] = useState(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -152,7 +150,6 @@ function MainApp() {
             <ProductGrid
               products={products}
               onQuickView={setSelectedProductForQuickView}
-              onOpenVirtualTryOn={setSelectedProductForVTO}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
               selectedGender={selectedGender}
@@ -174,7 +171,6 @@ function MainApp() {
             <ProductGrid
               products={products}
               onQuickView={setSelectedProductForQuickView}
-              onOpenVirtualTryOn={setSelectedProductForVTO}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
               selectedGender={selectedGender}
@@ -227,15 +223,6 @@ function MainApp() {
       <QuickViewModal
         product={selectedProductForQuickView}
         onClose={() => setSelectedProductForQuickView(null)}
-        onOpenVirtualTryOn={(product) => {
-          setSelectedProductForQuickView(null);
-          setSelectedProductForVTO(product);
-        }}
-      />
-
-      <VirtualTryOnModal
-        product={selectedProductForVTO}
-        onClose={() => setSelectedProductForVTO(null)}
       />
 
       <SearchModal

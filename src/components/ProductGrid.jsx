@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { ProductCard } from './ProductCard';
-import { Sparkles, SlidersHorizontal, Eye, Heart, ShoppingBag, Wand2 } from 'lucide-react';
+import { Eye, Heart, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 
 export const ProductGrid = ({
   products = [],
   onQuickView,
-  onOpenVirtualTryOn,
   selectedCategory,
   setSelectedCategory,
   selectedGender,
@@ -115,25 +114,12 @@ export const ProductGrid = ({
                   className="group relative flex flex-col justify-between bg-[#141414] rounded-2xl p-4 border border-white/10 hover:border-[#D4AF37]/40 transition-all duration-300 shadow-lg text-left"
                 >
                   {/* Image Container with Badges */}
-                  <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1E1E]">
+                  <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden mb-4 bg-[#1E1E1E] cursor-pointer" onClick={() => onQuickView && onQuickView(product)}>
                     {product.discount > 0 && (
                       <span className="absolute top-3 left-3 z-10 bg-[#D4AF37] text-black text-[10px] font-extrabold uppercase px-2.5 py-1 rounded shadow-md tracking-wider">
                         {product.discount}% OFF
                       </span>
                     )}
-
-                    {/* Dedicated AI Virtual Try-On Badge Button on Each Dress */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenVirtualTryOn && onOpenVirtualTryOn(product);
-                      }}
-                      className="absolute top-3 right-3 z-10 bg-black/80 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black border border-[#D4AF37]/50 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 transition-all shadow-md"
-                      title="See How You Look In This Dress (AI Virtual Fitting)"
-                    >
-                      <Wand2 className="w-3 h-3" />
-                      <span>AI Fit</span>
-                    </button>
 
                     <img
                       src={product.image || (product.images && product.images[0])}
@@ -145,7 +131,10 @@ export const ProductGrid = ({
                     {/* Hover Quick Actions */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                       <button
-                        onClick={() => toggleWishlist && toggleWishlist(product)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist && toggleWishlist(product);
+                        }}
                         className={`w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-[#D4AF37] transition-colors ${
                           isItemWishlisted ? 'bg-[#D4AF37] text-black' : ''
                         }`}
@@ -155,19 +144,14 @@ export const ProductGrid = ({
                       </button>
 
                       <button
-                        onClick={() => onQuickView && onQuickView(product)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onQuickView && onQuickView(product);
+                        }}
                         className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:bg-[#D4AF37] transition-colors"
-                        title="Quick View & AI Try-On"
+                        title="Quick View"
                       >
                         <Eye className="w-4 h-4" />
-                      </button>
-
-                      <button
-                        onClick={() => onOpenVirtualTryOn && onOpenVirtualTryOn(product)}
-                        className="w-10 h-10 rounded-full bg-[#D4AF37] text-black flex items-center justify-center hover:bg-amber-300 transition-colors shadow-gold-glow"
-                        title="AI Virtual Try-On Studio"
-                      >
-                        <Wand2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -179,7 +163,10 @@ export const ProductGrid = ({
                         MEN'S {product.category.toUpperCase()}
                       </span>
 
-                      <h3 className="font-poppins font-bold text-sm text-white line-clamp-1 mb-2 group-hover:text-[#D4AF37] transition-colors">
+                      <h3 
+                        onClick={() => onQuickView && onQuickView(product)}
+                        className="font-poppins font-bold text-sm text-white line-clamp-1 mb-2 group-hover:text-[#D4AF37] transition-colors cursor-pointer"
+                      >
                         {product.name}
                       </h3>
 
@@ -203,24 +190,14 @@ export const ProductGrid = ({
                       </div>
                     </div>
 
-                    {/* Dual Buttons: Add to Basket & Individual AI Try-On */}
-                    <div className="space-y-2">
-                      <button
-                        onClick={() => onOpenVirtualTryOn && onOpenVirtualTryOn(product)}
-                        className="w-full py-2 bg-[#D4AF37]/10 hover:bg-[#D4AF37] text-[#D4AF37] hover:text-black border border-[#D4AF37]/40 text-[11px] font-extrabold uppercase tracking-wider transition-all rounded-lg flex items-center justify-center gap-1.5 shadow-gold-glow"
-                      >
-                        <Wand2 className="w-3.5 h-3.5" />
-                        <span>AI Virtual Try-On</span>
-                      </button>
-
-                      <button
-                        onClick={() => addToCart && addToCart(product, 1)}
-                        className="w-full py-2.5 border border-white/20 hover:border-[#D4AF37] bg-white/5 hover:bg-white text-white hover:text-black text-xs font-bold uppercase tracking-wider transition-all rounded-lg flex items-center justify-center gap-2"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>ADD TO BASKET</span>
-                      </button>
-                    </div>
+                    {/* Add to Basket Button */}
+                    <button
+                      onClick={() => addToCart && addToCart(product, 1)}
+                      className="w-full py-2.5 border border-white/20 group-hover:border-[#D4AF37] group-hover:bg-[#D4AF37] group-hover:text-black text-white text-xs font-bold uppercase tracking-wider transition-all rounded-lg flex items-center justify-center gap-2"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span>ADD TO BASKET</span>
+                    </button>
 
                   </div>
 
